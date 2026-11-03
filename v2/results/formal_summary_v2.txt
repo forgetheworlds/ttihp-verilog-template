@@ -1,0 +1,17 @@
+PROP  DEPTH  PROVE     COVER            NOTE
+== tool versions ==
+SBY v0.70-9-g79fc9ed
+Yosys 0.70+290 (git sha1 e8968a4f7, Release, GNU /usr/bin/aarch64-linux-gnu-g++ 15.2.0)
+E0    40     FAIL      REACHED(1/1)     control: FAIL is EXPECTED (probe liveness); cex in results/formal_E0.txt
+E1    40     PASS      REACHED(1/1)     
+E2    40     PASS      REACHED(2/2)     
+E3    40     PASS      REACHED(1/1)     
+E4    48     PASS      REACHED(1/1)     
+E4B   40     PASS      REACHED(1/1)     
+E5    40     PASS      REACHED(1/1)     
+E6    40     PASS      REACHED(2/2)     
+E7    40     PASS      REACHED(1/1)     bounded proof ok; induction step did not converge
+E8    40     PASS      REACHED(1/1)     
+E9    40     PASS      PARTIAL(4/5)      PASS, but not every cover was reached: PARTIAL(4/5) unreached-cover-at: /home/ubuntu/verilog/v2/formal/eng_formal.sv:400.5-400.19 
+E10   40     PASS      REACHED(1/1)     
+E11   40     PASS      REACHED(1/1)     

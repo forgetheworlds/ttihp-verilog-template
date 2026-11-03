@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="880" viewBox="0 0 1000 880" role="img" aria-labelledby="t d">
+<title id="t">Verification ladder (hybrid v2)</title>
+<desc id="d">Twelve verification layers for the three-engine, five-assist PROTEUS build: toolchain self-check, submission harness, assist unit benches, top benches, pad-decoded protocols including Ethernet, cycle differential, engine formal, mutation, model demos, synthesis and post-route timing, with the v1-only top formal and the unrun GDS/GLS gates marked as gaps.</desc>
+<style>
+  :root { --fg:#1f2328; --muted:#57606a; --border:#c9d1d9;
+           --surface:#f6f8fa; --accent:#0969da; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg:#e6edf3; --muted:#8b949e; --border:#30363d;
+             --surface:#161b22; --accent:#58a6ff; }
+  }
+  text { font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; fill:var(--fg,#1f2328); }
+  .m { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  .dim { fill:var(--muted,#57606a); }
+  .acc { fill:var(--accent,#0969da); }
+  .box { fill:none; stroke:var(--border,#c9d1d9); stroke-width:1.2; }
+  .hi  { fill:none; stroke:var(--accent,#0969da); stroke-width:1.4; }
+  .w   { stroke:var(--fg,#1f2328); stroke-width:1.6; fill:none; }
+  .tick{ stroke:var(--accent,#0969da); stroke-width:1; stroke-dasharray:3 3; fill:none; }
+  .grid{ stroke:var(--border,#c9d1d9); stroke-width:1; fill:none; }
+  .arrow { stroke:var(--fg,#1f2328); stroke-width:1.2; fill:none; }
+</style>
+<text x="24" y="26" font-size="17" text-anchor="start" class="" font-weight="600">What is actually checked on the hybrid build, and what each layer cannot see</text>
+<text x="24" y="44" font-size="11.5" text-anchor="start" class="dim">Three engines + five assists, 12 source files, VERSION 0x02. Counts measured 2026-11-03 on this tree; every row names the artifact behind it in docs/verification.md §0. Layers 11 and 12 are the gaps.</text>
+<text x="64" y="86" font-size="9.5" text-anchor="start" class="dim">layer / what it can catch</text>
+<text x="470" y="86" font-size="9.5" text-anchor="start" class="dim">result (measured)</text>
+<text x="706" y="86" font-size="9.5" text-anchor="start" class="dim">source</text>
+
+<rect x="20" y="98" width="960" height="52" rx="6" class="box" />
+<text x="34" y="128" font-size="11" text-anchor="start" class="acc" font-weight="600">1</text>
+<text x="64" y="119" font-size="10.5" text-anchor="start" class="" font-weight="600">toolchain self-check</text>
+<text x="64" y="136" font-size="8.8" text-anchor="start" class="dim">assist opcodes round-trip, 5 CRC vectors, model FIFO/nf rule</text>
+<text x="470" y="119" font-size="9.3" text-anchor="start" class="m">SELFCHECK PASS</text>
+<text x="470" y="134" font-size="9.3" text-anchor="start" class="m dim">3 claims, exit 0</text>
+<text x="706" y="119" font-size="8.8" text-anchor="start" class="m dim">tools/selfcheck.py</text>
+
+<rect x="20" y="156" width="960" height="52" rx="6" class="box" />
+<text x="34" y="186" font-size="11" text-anchor="start" class="acc" font-weight="600">2</text>
+<text x="64" y="177" font-size="10.5" text-anchor="start" class="" font-weight="600">TT submission harness</text>
+<text x="64" y="194" font-size="8.8" text-anchor="start" class="dim">identity 50 52 02, program load/readback, run, pads (GATES-capable)</text>
+<text x="470" y="177" font-size="9.3" text-anchor="start" class="m">PASS, 1 test, 147,690 ns</text>
+<text x="470" y="192" font-size="9.3" text-anchor="start" class="m dim">engine 2 page, RUN retired</text>
+<text x="706" y="177" font-size="8.8" text-anchor="start" class="m dim">test/ (make -C test)</text>
+
+<rect x="20" y="214" width="960" height="52" rx="6" class="box" />
+<text x="34" y="244" font-size="11" text-anchor="start" class="acc" font-weight="600">3</text>
+<text x="64" y="235" font-size="10.5" text-anchor="start" class="" font-weight="600">assist unit benches</text>
+<text x="64" y="252" font-size="8.8" text-anchor="start" class="dim">CRC, FIFO, SHIFT, NRZI (closed loop + waveform), Manchester datapaths</text>
+<text x="470" y="235" font-size="9.3" text-anchor="start" class="m">5 benches PASS</text>
+<text x="470" y="250" font-size="9.3" text-anchor="start" class="m dim">tb_crc_bit … tb_manchester</text>
+<text x="706" y="235" font-size="8.8" text-anchor="start" class="m dim">tb/run.sh</text>
+
+<rect x="20" y="272" width="960" height="52" rx="6" class="box" />
+<text x="34" y="302" font-size="11" text-anchor="start" class="acc" font-weight="600">4</text>
+<text x="64" y="293" font-size="10.5" text-anchor="start" class="" font-weight="600">RTL top + engine benches</text>
+<text x="64" y="310" font-size="8.8" text-anchor="start" class="dim">CSR bank, engine 2 pages, arbitration, pin ownership, barriers, capture</text>
+<text x="470" y="293" font-size="9.3" text-anchor="start" class="m">37 / 19 / 237 / 400 checks</text>
+<text x="470" y="308" font-size="9.3" text-anchor="start" class="m dim">csr, top_smoke, engine_smoke, top_e2e</text>
+<text x="706" y="293" font-size="8.8" text-anchor="start" class="m dim">tb/tb_csr.v, tb_top_smoke.v,</text>
+<text x="706" y="307" font-size="8.8" text-anchor="start" class="m dim">engine_smoke_tb.v, top_e2e_tb.v</text>
+
+<rect x="20" y="330" width="960" height="52" rx="6" class="box" />
+<text x="34" y="360" font-size="11" text-anchor="start" class="acc" font-weight="600">5</text>
+<text x="64" y="351" font-size="10.5" text-anchor="start" class="" font-weight="600">protocols on the RTL, at the pads</text>
+<text x="64" y="368" font-size="8.8" text-anchor="start" class="dim">v2 map, UART TX/RX, SPI, I2C, Ethernet MII + FCS, independent decoders</text>
+<text x="470" y="351" font-size="9.3" text-anchor="start" class="m">6 tests, 236 checks</text>
+<text x="470" y="366" font-size="9.3" text-anchor="start" class="m dim">25 / 18 / 6 / 123 / 30 / 34</text>
+<text x="706" y="351" font-size="8.8" text-anchor="start" class="m dim">sim/test_protocols.py</text>
+<text x="706" y="365" font-size="8.8" text-anchor="start" class="m dim">v2/results/v2_verify.md</text>
+
+<rect x="20" y="388" width="960" height="52" rx="6" class="box" />
+<text x="34" y="418" font-size="11" text-anchor="start" class="acc" font-weight="600">6</text>
+<text x="64" y="409" font-size="10.5" text-anchor="start" class="" font-weight="600">DUT vs model, every cycle</text>
+<text x="64" y="426" font-size="8.8" text-anchor="start" class="dim">registers, PC, flags, pins, FIFOs, capture, collision; idle lanes asserted</text>
+<text x="470" y="409" font-size="9.3" text-anchor="start" class="m">209 programs, 16,122 cycles,</text>
+<text x="470" y="424" font-size="9.3" text-anchor="start" class="m">0 mismatches</text>
+<text x="706" y="409" font-size="8.8" text-anchor="start" class="m dim">sim/test_diff.py</text>
+<text x="706" y="423" font-size="8.8" text-anchor="start" class="m dim">v2/results/v2_diff_formal.md</text>
+
+<rect x="20" y="446" width="960" height="52" rx="6" class="box" />
+<text x="34" y="476" font-size="11" text-anchor="start" class="acc" font-weight="600">7</text>
+<text x="64" y="467" font-size="10.5" text-anchor="start" class="" font-weight="600">engine formal (SBY)</text>
+<text x="64" y="484" font-size="8.8" text-anchor="start" class="dim">bounded engine invariants + non-vacuity covers, v1 depths</text>
+<text x="470" y="467" font-size="9.3" text-anchor="start" class="m">E1–E8, E10, E11 PASS</text>
+<text x="470" y="482" font-size="9.3" text-anchor="start" class="m dim">E0 control FAIL, E9 cover 4/5</text>
+<text x="706" y="467" font-size="8.8" text-anchor="start" class="m dim">v2/formal/run.sh</text>
+<text x="706" y="481" font-size="8.8" text-anchor="start" class="m dim">v2/results/formal_summary_v2.txt</text>
+
+<rect x="20" y="504" width="960" height="52" rx="6" class="box" />
+<text x="34" y="534" font-size="11" text-anchor="start" class="acc" font-weight="600">8</text>
+<text x="64" y="525" font-size="10.5" text-anchor="start" class="" font-weight="600">mutation testing</text>
+<text x="64" y="542" font-size="8.8" text-anchor="start" class="dim">would the benches notice a plausible bug? engine, host, top, assist CSR</text>
+<text x="470" y="525" font-size="9.3" text-anchor="start" class="m">99 mutants, 95 killed</text>
+<text x="470" y="540" font-size="9.3" text-anchor="start" class="m">96.0 %; 4 survivors equivalent</text>
+<text x="706" y="525" font-size="8.8" text-anchor="start" class="m dim">tools/mutate.py</text>
+<text x="706" y="539" font-size="8.8" text-anchor="start" class="m dim">v2/results/v2_mutation.md</text>
+
+<rect x="20" y="562" width="960" height="52" rx="6" class="box" />
+<text x="34" y="592" font-size="11" text-anchor="start" class="acc" font-weight="600">9</text>
+<text x="64" y="583" font-size="10.5" text-anchor="start" class="" font-weight="600">model-level demos</text>
+<text x="64" y="600" font-size="8.8" text-anchor="start" class="dim">autobaud, WS2812, barrier bridge vs independent decoders; baselines</text>
+<text x="470" y="583" font-size="9.3" text-anchor="start" class="m">11 / 11 PASS</text>
+<text x="470" y="598" font-size="9.3" text-anchor="start" class="m dim">3 baselines match</text>
+<text x="706" y="583" font-size="8.8" text-anchor="start" class="m dim">demos/run_demos.py</text>
+
+<rect x="20" y="620" width="960" height="52" rx="6" class="box" />
+<text x="34" y="650" font-size="11" text-anchor="start" class="acc" font-weight="600">10</text>
+<text x="64" y="641" font-size="10.5" text-anchor="start" class="" font-weight="600">synthesis, area, post-GRT STA</text>
+<text x="64" y="658" font-size="8.8" text-anchor="start" class="dim">cell area and 20 ns timing; no routed parasitics, one typ corner</text>
+<text x="470" y="641" font-size="9.3" text-anchor="start" class="m">519,233.80 um², 36,343 cells,</text>
+<text x="470" y="656" font-size="9.3" text-anchor="start" class="m">57.54 %; +11.02 / +0.29 ns</text>
+<text x="706" y="641" font-size="8.8" text-anchor="start" class="m dim">results/synth_v2_root.txt</text>
+<text x="706" y="655" font-size="8.8" text-anchor="start" class="m dim">results/flow_report.md</text>
+
+<rect x="20" y="678" width="960" height="52" rx="6" class="box" stroke-dasharray="5 4" />
+<text x="34" y="708" font-size="11" text-anchor="start" class="dim" font-weight="600">11</text>
+<text x="64" y="699" font-size="10.5" text-anchor="start" class="" font-weight="600">top formal + X-freedom (v1 only)</text>
+<text x="64" y="716" font-size="8.8" text-anchor="start" class="dim">host strobes, pin merge, barrier release, X after reset — four-engine top</text>
+<text x="470" y="699" font-size="9.3" text-anchor="start" class="m dim">T1–T7: T7 OPEN, 4 covers</text>
+<text x="470" y="714" font-size="9.3" text-anchor="start" class="m dim">unreached; X1 208 cycles</text>
+<text x="706" y="699" font-size="8.8" text-anchor="start" class="m dim">results/formal_summary.txt</text>
+
+<rect x="20" y="736" width="960" height="52" rx="6" class="box" stroke-dasharray="5 4" />
+<text x="34" y="766" font-size="11" text-anchor="start" class="dim" font-weight="600">12</text>
+<text x="64" y="757" font-size="10.5" text-anchor="start" class="" font-weight="600">routed GDS, DRC/LVS, GLS</text>
+<text x="64" y="774" font-size="8.8" text-anchor="start" class="dim">netlist + SDF; local aarch64 DRT stalls, so the GitHub x86_64 action runs it</text>
+<text x="470" y="757" font-size="9.3" text-anchor="start" class="m dim">not run locally</text>
+<text x="470" y="772" font-size="9.3" text-anchor="start" class="m dim">authoritative: gds.yaml</text>
+<text x="706" y="757" font-size="8.8" text-anchor="start" class="m dim">.github/workflows/gds.yaml</text>
+
+<text x="24" y="822" font-size="9.5" text-anchor="start" class="m dim">Layers 1–10 run on this tree (src/, 12 files, VERSION 0x02) and pass. Layer 11 is v1 evidence only; layer 12 has never run locally. FPGA (DE2) is also v1-only.</text>
+<text x="24" y="840" font-size="9.5" text-anchor="start" class="m dim">What no layer here proves: 10 Mbit/s sustained Ethernet (host-bandwidth-bound), USB LS or 10BASE-T protocols, JTAG beyond 12/16 states, or any silicon behaviour.</text>
+<text x="24" y="858" font-size="9.5" text-anchor="start" class="m dim">Assist data paths are outside layer 6 by construction; their evidence is layers 3, 4 and 5. Full caveats: docs/verification.md §3.</text>
+</svg>

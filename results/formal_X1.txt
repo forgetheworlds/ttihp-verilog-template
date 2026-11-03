@@ -1,0 +1,8 @@
+/home/ubuntu/verilog/src/tt_um_proteus.v:132: error: Unable to bind wire/reg/memory `host_en' in `xcheck_tb.dut'
+/home/ubuntu/verilog/src/tt_um_proteus.v:141:      : A symbol with that name was declared here. Check for declaration after use.
+/home/ubuntu/verilog/src/tt_um_proteus.v:133: error: Unable to bind wire/reg/memory `host_en' in `xcheck_tb.dut'
+/home/ubuntu/verilog/src/tt_um_proteus.v:141:      : A symbol with that name was declared here. Check for declaration after use.
+/home/ubuntu/verilog/src/tt_um_proteus.v:201: error: Unable to bind wire/reg/memory `run_reg' in `xcheck_tb.dut'
+/home/ubuntu/verilog/src/tt_um_proteus.v:203:      : A symbol with that name was declared here. Check for declaration after use.
+/home/ubuntu/verilog/src/tt_um_proteus.v:201: error: Unable to elaborate r-value: ((run_reg)&(~(halted_mask)))&(ready_mask)
+4 error(s) during elaboration.

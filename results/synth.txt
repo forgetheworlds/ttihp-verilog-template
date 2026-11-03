@@ -1,0 +1,450 @@
+# PROTEUS synthesis area report
+# generated: 2026-11-02T23:11:47Z
+# yosys:     Yosys 0.33 (git sha1 2584903a060)
+# mode:      auto
+# stdcell liberty: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+# corner:          sg13cmos5l typ 1.20V 25C (TT nom_typ_1p20V_25C)
+# sram liberty:    /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_sram/lib/RM_IHPSG13_2P_64x32_c2_typ_1p20V_25C.lib
+
+================================================================
+## bench_ram_ff_aw6
+================================================================
+
+=== prog_ram_ff ===
+
+   Number of wires:               2186
+   Number of wire bits:           3714
+   Number of public wires:          70
+   Number of public wire bits:    1598
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               3676
+     sg13cmos5l_dfrbpq_1          1536
+     sg13cmos5l_inv_1                2
+     sg13cmos5l_mux2_1            1536
+     sg13cmos5l_mux4_1             504
+     sg13cmos5l_nand2_1              9
+     sg13cmos5l_nand2b_1             5
+     sg13cmos5l_nand3_1              9
+     sg13cmos5l_nand3b_1             4
+     sg13cmos5l_nand4_1              1
+     sg13cmos5l_nor2_1              50
+     sg13cmos5l_nor2b_1              6
+     sg13cmos5l_nor3_1               2
+     sg13cmos5l_or2_1               12
+
+   Chip area for module '\prog_ram_ff': 123128.812800
+
+# area source: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+
+================================================================
+## bench_ram_ff_aw5
+================================================================
+
+=== prog_ram_ff ===
+
+   Number of wires:               1090
+   Number of wire bits:           1880
+   Number of public wires:          38
+   Number of public wire bits:     828
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               1844
+     sg13cmos5l_dfrbpq_1           768
+     sg13cmos5l_inv_1                1
+     sg13cmos5l_mux2_1             792
+     sg13cmos5l_mux4_1             240
+     sg13cmos5l_nand2b_1             3
+     sg13cmos5l_nand3_1              2
+     sg13cmos5l_nand3b_1             5
+     sg13cmos5l_nor2_1              12
+     sg13cmos5l_nor3_1              14
+     sg13cmos5l_nor4_1               3
+     sg13cmos5l_or2_1                1
+     sg13cmos5l_or3_1                2
+     sg13cmos5l_or4_1                1
+
+   Chip area for module '\prog_ram_ff': 61548.076800
+
+# area source: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+
+================================================================
+## bench_ram_ff_aw4
+================================================================
+
+=== prog_ram_ff ===
+
+   Number of wires:                530
+   Number of wire bits:            950
+   Number of public wires:          22
+   Number of public wire bits:     442
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                916
+     sg13cmos5l_dfrbpq_1           384
+     sg13cmos5l_inv_1                2
+     sg13cmos5l_mux2_1             384
+     sg13cmos5l_mux4_1             120
+     sg13cmos5l_nand2_1              2
+     sg13cmos5l_nand2b_1             1
+     sg13cmos5l_nand3_1              2
+     sg13cmos5l_nand3b_1             4
+     sg13cmos5l_nand4_1              1
+     sg13cmos5l_nor2_1               9
+     sg13cmos5l_nor2b_1              3
+     sg13cmos5l_nor3_1               4
+
+   Chip area for module '\prog_ram_ff': 30594.412800
+
+# area source: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+
+================================================================
+## bench_ram_ff_d24
+================================================================
+
+=== prog_ram_ff ===
+
+   Number of wires:                832
+   Number of wire bits:           1438
+   Number of public wires:          30
+   Number of public wire bits:     636
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               1402
+     sg13cmos5l_dfrbpq_1           576
+     sg13cmos5l_inv_1                1
+     sg13cmos5l_mux2_1             624
+     sg13cmos5l_mux4_1             168
+     sg13cmos5l_nand2b_1             3
+     sg13cmos5l_nand3_1              1
+     sg13cmos5l_nand3b_1             4
+     sg13cmos5l_nor2_1               6
+     sg13cmos5l_nor3_1              12
+     sg13cmos5l_nor4_1               3
+     sg13cmos5l_or2_1                1
+     sg13cmos5l_or3_1                2
+     sg13cmos5l_or4_1                1
+
+   Chip area for module '\prog_ram_ff': 46267.200000
+
+# area source: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+
+================================================================
+## bench_ram_ff4_aw6
+================================================================
+
+=== prog_ram_ff4 ===
+
+   Number of wires:               8689
+   Number of wire bits:          14944
+   Number of public wires:         292
+   Number of public wire bits:    6547
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              14637
+     sg13cmos5l_and2_1             172
+     sg13cmos5l_dfrbpq_1          6144
+     sg13cmos5l_inv_1                2
+     sg13cmos5l_mux2_1            6144
+     sg13cmos5l_mux4_1            2016
+     sg13cmos5l_nand2_1             40
+     sg13cmos5l_nand2b_1             4
+     sg13cmos5l_nand3_1             46
+     sg13cmos5l_nand3b_1             6
+     sg13cmos5l_nor2_1              29
+     sg13cmos5l_nor3_1              24
+     sg13cmos5l_nor4_1               8
+     sg13cmos5l_or3_1                2
+
+   Chip area for module '\prog_ram_ff4': 492210.432000
+
+# area source: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+
+================================================================
+## bench_ram_ff4_d24
+================================================================
+
+=== prog_ram_ff4 ===
+
+   Number of wires:               3321
+   Number of wire bits:           5883
+   Number of public wires:         132
+   Number of public wire bits:    2694
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               5589
+     sg13cmos5l_and2_1               1
+     sg13cmos5l_dfrbpq_1          2304
+     sg13cmos5l_inv_1                5
+     sg13cmos5l_mux2_1            2496
+     sg13cmos5l_mux4_1             672
+     sg13cmos5l_nand2_1              1
+     sg13cmos5l_nand2b_1             4
+     sg13cmos5l_nand3_1             16
+     sg13cmos5l_nand3b_1             2
+     sg13cmos5l_nand4_1             24
+     sg13cmos5l_nor2_1               2
+     sg13cmos5l_nor2b_1              4
+     sg13cmos5l_nor3_1              33
+     sg13cmos5l_nor4_1              24
+     sg13cmos5l_or2_1                1
+
+   Chip area for module '\prog_ram_ff4': 184894.617600
+
+# area source: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+
+================================================================
+## bench_ram_sram_aw6
+================================================================
+
+=== prog_ram_sram ===
+
+   Number of wires:               2238
+   Number of wire bits:           3789
+   Number of public wires:          72
+   Number of public wire bits:    1623
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               3726
+     sg13cmos5l_and2_1               3
+     sg13cmos5l_dfrbpq_1          1560
+     sg13cmos5l_inv_1                2
+     sg13cmos5l_mux2_1            1560
+     sg13cmos5l_mux4_1             504
+     sg13cmos5l_nand2_1             16
+     sg13cmos5l_nand2b_1             2
+     sg13cmos5l_nand3_1              8
+     sg13cmos5l_nand3b_1             2
+     sg13cmos5l_nand4_1              4
+     sg13cmos5l_nor2_1              43
+     sg13cmos5l_nor2b_1              4
+     sg13cmos5l_nor3_1               8
+     sg13cmos5l_nor4_1               1
+     sg13cmos5l_or2_1                7
+     sg13cmos5l_or3_1                1
+     sg13cmos5l_or4_1                1
+
+   Chip area for module '\prog_ram_sram': 124767.216000
+
+# area source: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+
+================================================================
+## bench_fifo8_d8
+================================================================
+
+=== fifo_rb ===
+
+   Number of wires:                159
+   Number of wire bits:            238
+   Number of public wires:          19
+   Number of public wire bits:      96
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                226
+     sg13cmos5l_a21o_1               3
+     sg13cmos5l_a21oi_1              6
+     sg13cmos5l_and2_1               2
+     sg13cmos5l_and3_1               4
+     sg13cmos5l_and4_1               1
+     sg13cmos5l_dfrbpq_1            77
+     sg13cmos5l_inv_1                6
+     sg13cmos5l_mux2_1              72
+     sg13cmos5l_mux4_1              16
+     sg13cmos5l_nand2b_1             2
+     sg13cmos5l_nand3_1              3
+     sg13cmos5l_nand4_1              3
+     sg13cmos5l_nor2_1               7
+     sg13cmos5l_nor2b_1              3
+     sg13cmos5l_nor3_1               5
+     sg13cmos5l_nor4_1               1
+     sg13cmos5l_o21ai_1              6
+     sg13cmos5l_or3_1                1
+     sg13cmos5l_xnor2_1              6
+     sg13cmos5l_xor2_1               2
+
+   Chip area for module '\fifo_rb': 6292.339200
+
+# area source: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+
+================================================================
+## bench_fifo8_d4
+================================================================
+
+=== fifo_rb ===
+
+   Number of wires:                 88
+   Number of wire bits:            135
+   Number of public wires:          15
+   Number of public wire bits:      61
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                123
+     sg13cmos5l_a21oi_1              4
+     sg13cmos5l_a221oi_1             1
+     sg13cmos5l_and2_1               4
+     sg13cmos5l_dfrbpq_1            41
+     sg13cmos5l_inv_1                4
+     sg13cmos5l_mux2_1              32
+     sg13cmos5l_mux4_1               8
+     sg13cmos5l_nand2_1              2
+     sg13cmos5l_nand2b_1             2
+     sg13cmos5l_nand3_1              2
+     sg13cmos5l_nand3b_1             2
+     sg13cmos5l_nand4_1              1
+     sg13cmos5l_nor2_1               9
+     sg13cmos5l_nor2b_1              1
+     sg13cmos5l_nor3_1               4
+     sg13cmos5l_xnor2_1              3
+     sg13cmos5l_xor2_1               3
+
+   Chip area for module '\fifo_rb': 3287.692800
+
+# area source: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+
+================================================================
+## bench_fifo37_d8
+================================================================
+
+=== fifo_rb ===
+
+   Number of wires:                450
+   Number of wire bits:            819
+   Number of public wires:          19
+   Number of public wire bits:     386
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                778
+     sg13cmos5l_a21o_1               2
+     sg13cmos5l_a21oi_1              8
+     sg13cmos5l_and2_1               7
+     sg13cmos5l_and3_1               3
+     sg13cmos5l_dfrbpq_1           309
+     sg13cmos5l_inv_1                5
+     sg13cmos5l_mux2_1             334
+     sg13cmos5l_mux4_1              74
+     sg13cmos5l_nand2_1              3
+     sg13cmos5l_nand2b_1             3
+     sg13cmos5l_nand3_1              5
+     sg13cmos5l_nor2_1               3
+     sg13cmos5l_nor2b_1              3
+     sg13cmos5l_nor3_1               4
+     sg13cmos5l_nor4_1               1
+     sg13cmos5l_o21ai_1              7
+     sg13cmos5l_xnor2_1              6
+     sg13cmos5l_xor2_1               1
+
+   Chip area for module '\fifo_rb': 24599.635200
+
+# area source: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+
+================================================================
+## bench_fifo37_d4
+================================================================
+
+=== fifo_rb ===
+
+   Number of wires:                204
+   Number of wire bits:            425
+   Number of public wires:          15
+   Number of public wire bits:     235
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                384
+     sg13cmos5l_a21oi_1              4
+     sg13cmos5l_a221oi_1             1
+     sg13cmos5l_and2_1               4
+     sg13cmos5l_dfrbpq_1           157
+     sg13cmos5l_inv_1                4
+     sg13cmos5l_mux2_1             148
+     sg13cmos5l_mux4_1              37
+     sg13cmos5l_nand2_1              2
+     sg13cmos5l_nand2b_1             2
+     sg13cmos5l_nand3_1              2
+     sg13cmos5l_nand3b_1             2
+     sg13cmos5l_nand4_1              1
+     sg13cmos5l_nor2_1               9
+     sg13cmos5l_nor2b_1              1
+     sg13cmos5l_nor3_1               4
+     sg13cmos5l_xnor2_1              3
+     sg13cmos5l_xor2_1               3
+
+   Chip area for module '\fifo_rb': 12180.067200
+
+# area source: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+
+================================================================
+## bench_ram_macro_64x32
+================================================================
+
+=== prog_ram_macro ===
+
+   Number of wires:                  8
+   Number of wire bits:            126
+   Number of public wires:           8
+   Number of public wire bits:     126
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     RM_IHPSG13_2P_64x32_c2          1
+
+   Chip area for module '\prog_ram_macro': 52620.882100
+
+# area source: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_sram/lib/RM_IHPSG13_2P_64x32_c2_typ_1p20V_25C.lib
+
+================================================================
+## design_d32
+================================================================
+
+=== tt_um_proteus ===
+
+   Number of wires:              36169
+   Number of wire bits:          44214
+   Number of public wires:         984
+   Number of public wire bits:    9013
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              40029
+     sg13cmos5l_a21o_1             694
+     sg13cmos5l_a21oi_1           4835
+     sg13cmos5l_a221oi_1           972
+     sg13cmos5l_a22oi_1           4973
+     sg13cmos5l_and2_1             881
+     sg13cmos5l_and3_1              99
+     sg13cmos5l_and4_1              54
+     sg13cmos5l_dfrbpq_1          4829
+     sg13cmos5l_inv_1              656
+     sg13cmos5l_mux2_1             217
+     sg13cmos5l_mux4_1              56
+     sg13cmos5l_nand2_1           5593
+     sg13cmos5l_nand2b_1           842
+     sg13cmos5l_nand3_1            840
+     sg13cmos5l_nand3b_1            72
+     sg13cmos5l_nand4_1           1121
+     sg13cmos5l_nor2_1            2584
+     sg13cmos5l_nor2b_1            657
+     sg13cmos5l_nor3_1             719
+     sg13cmos5l_nor4_1             302
+     sg13cmos5l_o21ai_1           7393
+     sg13cmos5l_or2_1              488
+     sg13cmos5l_or3_1              218
+     sg13cmos5l_or4_1               37
+     sg13cmos5l_xnor2_1            506
+     sg13cmos5l_xor2_1             391
+
+   Chip area for module '\tt_um_proteus': 568294.385400
+
+# area source: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+

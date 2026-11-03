@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700" viewBox="0 0 1000 700" role="img" aria-labelledby="t d">
+<title id="t">PROTEUS architecture (hybrid v2)</title>
+<desc id="d">Block diagram of the PROTEUS hybrid v2 top level: host SPI, register file and decode, 32-bit cycle counter, three program engines, a five-block protocol-agnostic assist fabric with its CSR window and pin ownership, barriers, IRQ, a four-entry capture FIFO, the pin fabric merge in priority order and the pads.</desc>
+<style>
+  :root { --fg:#1f2328; --muted:#57606a; --border:#c9d1d9;
+           --surface:#f6f8fa; --accent:#0969da; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg:#e6edf3; --muted:#8b949e; --border:#30363d;
+             --surface:#161b22; --accent:#58a6ff; }
+  }
+  text { font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; fill:var(--fg,#1f2328); }
+  .m { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  .dim { fill:var(--muted,#57606a); }
+  .acc { fill:var(--accent,#0969da); }
+  .box { fill:none; stroke:var(--border,#c9d1d9); stroke-width:1.2; }
+  .hi  { fill:none; stroke:var(--accent,#0969da); stroke-width:1.4; }
+  .w   { stroke:var(--fg,#1f2328); stroke-width:1.6; fill:none; }
+  .tick{ stroke:var(--accent,#0969da); stroke-width:1; stroke-dasharray:3 3; fill:none; }
+  .grid{ stroke:var(--border,#c9d1d9); stroke-width:1; fill:none; }
+  .arrow { stroke:var(--fg,#1f2328); stroke-width:1.2; fill:none; }
+</style>
+<text x="24" y="26" font-size="17" text-anchor="start" class="" font-weight="600">PROTEUS - a software-defined pin engine (hybrid v2)</text>
+<text x="24" y="44" font-size="11.5" text-anchor="start" class="dim">Three 24-bit engines plus five protocol-agnostic assists on one die: programs are loaded over SPI, protocols are firmware, and the pins are the only interface. VERSION 0x02.</text>
+<text x="24" y="84" font-size="10" text-anchor="start" class="m">ui_in[0] SCK</text>
+<text x="24" y="100" font-size="10" text-anchor="start" class="m">ui_in[1] CS_N</text>
+<text x="24" y="116" font-size="10" text-anchor="start" class="m">ui_in[2] MOSI</text>
+<line x1="112" y1="80" x2="170" y2="96" class="arrow" />
+<line x1="112" y1="96" x2="170" y2="104" class="arrow" />
+<line x1="112" y1="112" x2="170" y2="112" class="arrow" />
+<rect x="170" y="64" width="250" height="96" rx="4" class="box" />
+<text x="184" y="86" font-size="12" text-anchor="start" class="" font-weight="600">proteus_host</text>
+<text x="184" y="104" font-size="10" text-anchor="start" class="m">SPI mode 0 · MSB first · SCK ≤ clk/8</text>
+<text x="184" y="120" font-size="10" text-anchor="start" class="m">14-state command FSM</text>
+<text x="184" y="136" font-size="10" text-anchor="start" class="m">16-bit pointer · cmd 0x00..0x09</text>
+<line x1="420" y1="80" x2="472" y2="80" class="arrow" />
+<polyline points="467,75 472,80 467,85" class="arrow" />
+<text x="478" y="84" font-size="10" text-anchor="start" class="m dim">uo_out[0] MISO</text>
+<text x="478" y="108" font-size="10" text-anchor="start" class="m dim">a program image is one SET_PTR plus</text>
+<text x="478" y="124" font-size="10" text-anchor="start" class="m dim">one WRITE_INC burst at</text>
+<text x="478" y="140" font-size="10" text-anchor="start" class="m dim">0x0100 + e·0x100 + i·4 + b, e &lt; 3</text>
+<text x="478" y="156" font-size="10" text-anchor="start" class="m dim">assists: host CSR at 0x0600 + 0x10*id</text>
+<rect x="30" y="176" width="940" height="366" rx="6" class="box" stroke-dasharray="6 4"/>
+<text x="44" y="198" font-size="12" text-anchor="start" class="m acc" font-weight="600">tt_um_proteus</text>
+<text x="956" y="198" font-size="10" text-anchor="end" class="dim">6×4 tiles · sg13cmos5l · 12 source files</text>
+<line x1="295" y1="160" x2="295" y2="176" class="arrow" />
+<polyline points="290,171 295,176 300,171" class="arrow" />
+<text x="302" y="172" font-size="9.5" text-anchor="start" class="dim">reg_we / reg_addr / reg_wdata / reg_rdata</text>
+<rect x="44" y="208" width="300" height="58" rx="4" class="box" />
+<text x="56" y="228" font-size="11" text-anchor="start" class="" font-weight="600">register file + 16-bit decode</text>
+<text x="56" y="244" font-size="10" text-anchor="start" class="m dim">0x0000..0x064F · three engine windows</text>
+<text x="56" y="258" font-size="10" text-anchor="start" class="m dim">program RAM · assist CSR · pin regs</text>
+<rect x="356" y="208" width="150" height="58" rx="4" class="box" />
+<text x="368" y="228" font-size="11" text-anchor="start" class="" font-weight="600">cycle counter</text>
+<text x="368" y="244" font-size="10" text-anchor="start" class="m dim">32-bit · +1 per clk</text>
+<text x="368" y="258" font-size="10" text-anchor="start" class="m dim">0x000B..0x000E</text>
+<rect x="518" y="208" width="110" height="58" rx="4" class="box" />
+<text x="530" y="228" font-size="11" text-anchor="start" class="" font-weight="600">barriers</text>
+<text x="530" y="244" font-size="10" text-anchor="start" class="m dim">×4 · BAR 0..3</text>
+<text x="530" y="258" font-size="10" text-anchor="start" class="m dim">same-cycle release</text>
+<rect x="640" y="208" width="96" height="58" rx="4" class="box" />
+<text x="652" y="228" font-size="11" text-anchor="start" class="" font-weight="600">IRQ</text>
+<text x="652" y="244" font-size="10" text-anchor="start" class="m dim">×8 lines</text>
+<text x="652" y="258" font-size="10" text-anchor="start" class="m dim">set/clr/wait</text>
+<rect x="748" y="208" width="208" height="58" rx="4" class="box" />
+<text x="760" y="228" font-size="11" text-anchor="start" class="" font-weight="600">capture FIFO</text>
+<text x="760" y="244" font-size="10" text-anchor="start" class="m dim">4 × {ts[31:0], pin[3:0], lvl}</text>
+<text x="760" y="258" font-size="10" text-anchor="start" class="m dim">CAP_EN → timestamped edges</text>
+<line x1="160" y1="282" x2="948" y2="282" class="tick" />
+<text x="48" y="276" font-size="9.5" text-anchor="start" class="m dim">bar_req/bar_go · irq[7:0] · cycle[31:0] · assist CSR (LDAS/STAS/ASST)</text>
+<rect x="44" y="294" width="217" height="140" rx="4" class="box" />
+<text x="58" y="316" font-size="12" text-anchor="start" class="" font-weight="600">engine 0</text>
+<text x="58" y="336" font-size="10" text-anchor="start" class="m dim">32 × 24 program RAM</text>
+<text x="58" y="352" font-size="10" text-anchor="start" class="m dim">8 × 8-bit regs + Z C N</text>
+<text x="58" y="368" font-size="10" text-anchor="start" class="m dim">8-bit ALU · 1 insn/clk</text>
+<text x="58" y="384" font-size="10" text-anchor="start" class="m dim">in / out FIFO, 4 deep</text>
+<text x="58" y="400" font-size="10" text-anchor="start" class="m dim">24.8 pacer, 32-bit deadline</text>
+<text x="58" y="416" font-size="10" text-anchor="start" class="m dim">side-set 1–3 pins, every cycle</text>
+<line x1="152" y1="282" x2="152" y2="294" class="tick" />
+<line x1="152" y1="434" x2="152" y2="456" class="arrow" />
+<polyline points="147,451 152,456 157,451" class="arrow" />
+<rect x="273" y="294" width="217" height="140" rx="4" class="box" />
+<text x="287" y="316" font-size="12" text-anchor="start" class="" font-weight="600">engine 1</text>
+<text x="287" y="336" font-size="10" text-anchor="start" class="m dim">32 × 24 program RAM</text>
+<text x="287" y="352" font-size="10" text-anchor="start" class="m dim">8 × 8-bit regs + Z C N</text>
+<text x="287" y="368" font-size="10" text-anchor="start" class="m dim">8-bit ALU · 1 insn/clk</text>
+<text x="287" y="384" font-size="10" text-anchor="start" class="m dim">in / out FIFO, 4 deep</text>
+<text x="287" y="400" font-size="10" text-anchor="start" class="m dim">24.8 pacer, 32-bit deadline</text>
+<text x="287" y="416" font-size="10" text-anchor="start" class="m dim">side-set 1–3 pins, every cycle</text>
+<line x1="381" y1="282" x2="381" y2="294" class="tick" />
+<line x1="381" y1="434" x2="381" y2="456" class="arrow" />
+<polyline points="376,451 381,456 386,451" class="arrow" />
+<rect x="502" y="294" width="217" height="140" rx="4" class="box" />
+<text x="516" y="316" font-size="12" text-anchor="start" class="" font-weight="600">engine 2</text>
+<text x="516" y="336" font-size="10" text-anchor="start" class="m dim">32 × 24 program RAM</text>
+<text x="516" y="352" font-size="10" text-anchor="start" class="m dim">8 × 8-bit regs + Z C N</text>
+<text x="516" y="368" font-size="10" text-anchor="start" class="m dim">8-bit ALU · 1 insn/clk</text>
+<text x="516" y="384" font-size="10" text-anchor="start" class="m dim">in / out FIFO, 4 deep</text>
+<text x="516" y="400" font-size="10" text-anchor="start" class="m dim">24.8 pacer, 32-bit deadline</text>
+<text x="516" y="416" font-size="10" text-anchor="start" class="m dim">side-set 1–3 pins, every cycle</text>
+<line x1="610" y1="282" x2="610" y2="294" class="tick" />
+<line x1="610" y1="434" x2="610" y2="456" class="arrow" />
+<polyline points="605,451 610,456 615,451" class="arrow" />
+<rect x="731" y="294" width="225" height="140" rx="4" class="hi" />
+<text x="745" y="316" font-size="12" text-anchor="start" class="acc" font-weight="600">assist fabric</text>
+<text x="745" y="334" font-size="10" text-anchor="start" class="m">5 blocks · 8 regs each</text>
+<text x="745" y="350" font-size="10" text-anchor="start" class="m dim">CRC · FIFO(16×8) · SHIFT32</text>
+<text x="745" y="366" font-size="10" text-anchor="start" class="m dim">NRZI enc/dec · MANCH enc/dec</text>
+<text x="745" y="384" font-size="10" text-anchor="start" class="m">CSR 0x0600 + 0x10*id</text>
+<text x="745" y="400" font-size="10" text-anchor="start" class="m dim">LDAS / STAS / ASST, 1 cycle</text>
+<text x="745" y="416" font-size="10" text-anchor="start" class="m dim">PINCFG (+8) owns tx/rx pins</text>
+<line x1="839" y1="282" x2="839" y2="294" class="tick" />
+<line x1="843" y1="434" x2="843" y2="456" class="arrow" />
+<polyline points="838,451 843,456 848,451" class="arrow" />
+<rect x="44" y="456" width="912" height="72" rx="4" class="box" />
+<text x="58" y="478" font-size="11" text-anchor="start" class="" font-weight="600">pin fabric</text>
+<text x="140" y="478" font-size="10.5" text-anchor="start" class="m">uo_q · uio_q · oe_q · od_q</text>
+<text x="58" y="496" font-size="10.5" text-anchor="start" class="m dim">reg = (reg &amp; ~mask) | (data &amp; mask), applied engine 0 → 1 → 2, then the assist stage, then the host (a higher index wins a contested bit)</text>
+<text x="58" y="512" font-size="9.5" text-anchor="start" class="m dim">assist pins are push-pull (OD cleared for owned bits); host writes to 0x0520..0x0523 win over engine and assist traffic in the same cycle</text>
+<line x1="184" y1="528" x2="184" y2="556" class="arrow" />
+<polyline points="179,551 184,556 189,551" class="arrow" />
+<line x1="500" y1="528" x2="500" y2="556" class="arrow" />
+<polyline points="495,551 500,556 505,551" class="arrow" />
+<line x1="816" y1="528" x2="816" y2="556" class="arrow" />
+<polyline points="811,551 816,556 821,551" class="arrow" />
+<rect x="44" y="556" width="280" height="58" rx="4" class="box" />
+<text x="56" y="576" font-size="10.5" text-anchor="start" class="" font-weight="600">uo_out[7:2] — fabric out, 6 pins</text>
+<text x="56" y="592" font-size="9.5" text-anchor="start" class="m dim">uo_out[0] MISO · uo_out[1] IRQ</text>
+<text x="56" y="606" font-size="9.5" text-anchor="start" class="m dim">while the host owns the pins</text>
+<rect x="360" y="556" width="280" height="58" rx="4" class="box" />
+<text x="372" y="576" font-size="10.5" text-anchor="start" class="" font-weight="600">uio[7:0] — fabric io, 8 pins</text>
+<text x="372" y="592" font-size="9.5" text-anchor="start" class="m dim">per-pin OE, open-drain, read = pad</text>
+<text x="372" y="606" font-size="9.5" text-anchor="start" class="m dim">level, plus a collision flag</text>
+<rect x="676" y="556" width="280" height="58" rx="4" class="box" />
+<text x="688" y="576" font-size="10.5" text-anchor="start" class="" font-weight="600">ui_in[7:3] — fabric in, 5 pins</text>
+<text x="688" y="592" font-size="9.5" text-anchor="start" class="m dim">ui_in[2:0] host SPI until</text>
+<text x="688" y="606" font-size="9.5" text-anchor="start" class="m dim">HOST_DISABLE hands them over</text>
+<text x="24" y="646" font-size="9.5" text-anchor="start" class="m dim">Sources: src/tt_um_proteus.v (port list, fabric merge, collision, pads) · src/proteus_assist.v (CSR map, PINCFG) · src/proteus_defs.vh (windows)</text>
+<text x="24" y="662" font-size="9.5" text-anchor="start" class="m dim">· docs/architecture.md §2–§6, docs/pinout.md §2.  Assists, shipped hierarchy: CRC 21,152.96 · FIFO 12,423.12 · SHIFT 9,559.51 · NRZI 10,730.06 · MANCH 5,989.26 um2.</text>
+<text x="24" y="680" font-size="9.5" text-anchor="start" class="m dim">Counts re-checked on this tree: 75 opcodes (len(tools/isa.py OPS)) · 3 engines · 5 assists · 4 barriers · 8 IRQ · 4 capture entries.  Nothing about UART, SPI, I2C or Ethernet is committed to gates.</text>
+</svg>

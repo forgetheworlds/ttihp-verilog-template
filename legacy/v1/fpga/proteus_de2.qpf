@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<project version="1">
+	<version>1</version>
+	<revision name="proteus_de2" />
+	<project>
+		<version>1</version>
+		<family>Cyclone II</family>
+		<device>EP2C35F672C6</device>
+		<board>Altera DE2 Board</board>
+	</project>
+</project>

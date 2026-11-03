@@ -1,0 +1,64 @@
+SBY  0:09:30 [/home/ubuntu/verilog/formal/work/E8-cover] Removing directory '/home/ubuntu/verilog/formal/work/E8-cover'.
+SBY  0:09:30 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: smtbmc z3
+SBY  0:09:30 [/home/ubuntu/verilog/formal/work/E8-cover] base: starting process "cd /home/ubuntu/verilog/formal/work/E8-cover/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY  0:09:31 [/home/ubuntu/verilog/formal/work/E8-cover] base: Warning: Replacing memory \prog_mem with list of registers. See /home/ubuntu/verilog/src/proteus_engine.v:1093
+SBY  0:09:31 [/home/ubuntu/verilog/formal/work/E8-cover] base: Warning: Replacing memory \regs with list of registers. See /home/ubuntu/verilog/src/proteus_engine.v:1086
+SBY  0:09:31 [/home/ubuntu/verilog/formal/work/E8-cover] base: Warning: Replacing memory \out_mem with list of registers. See /home/ubuntu/verilog/src/proteus_engine.v:1083
+SBY  0:09:31 [/home/ubuntu/verilog/formal/work/E8-cover] base: Warning: Replacing memory \in_mem with list of registers. See /home/ubuntu/verilog/src/proteus_engine.v:1082
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] base: finished (returncode=0)
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] prep: starting process "cd /home/ubuntu/verilog/formal/work/E8-cover/model; yosys -ql design_prep.log design_prep.ys"
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] prep: finished (returncode=0)
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] smt2: starting process "cd /home/ubuntu/verilog/formal/work/E8-cover/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] smt2: finished (returncode=0)
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: starting process "cd /home/ubuntu/verilog/formal/work/E8-cover; yosys-smtbmc -s z3 --presat -c --noprogress -t 40  --append 0 --dump-vcd engine_0/trace%.vcd --dump-yw engine_0/trace%.yw --dump-vlogtb engine_0/trace%_tb.v --dump-smtc engine_0/trace%.smtc model/design_smt2.smt2"
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Solver: z3
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 0..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 1..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 2..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 3..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 4..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 5..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 6..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 7..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 8..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 9..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 10..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 11..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 12..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 13..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 14..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 15..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 16..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 17..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 18..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 19..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 20..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 21..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 22..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 23..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 24..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 25..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 26..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 27..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 28..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 29..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 30..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 31..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 32..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 33..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 34..
+SBY  0:09:32 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:00  Checking cover reachability in step 35..
+SBY  0:09:33 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:01  Reached cover statement in step 35 at eng_formal: /home/ubuntu/verilog/formal/eng_formal.sv:346.5-346.19 (_witness_.check__home_ubuntu_verilog_formal_eng_formal_sv_346_cover_54)
+SBY  0:09:33 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:01  Writing trace to VCD file: engine_0/trace0.vcd
+SBY  0:09:34 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:01  Writing trace to Verilog testbench: engine_0/trace0_tb.v
+SBY  0:09:34 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:01  Writing trace to constraints file: engine_0/trace0.smtc
+SBY  0:09:34 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:01  Writing trace to Yosys witness file: engine_0/trace0.yw
+SBY  0:09:34 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: ##   0:00:02  Status: passed
+SBY  0:09:34 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: finished (returncode=0)
+SBY  0:09:34 [/home/ubuntu/verilog/formal/work/E8-cover] engine_0: Status returned by engine: pass
+SBY  0:09:34 [/home/ubuntu/verilog/formal/work/E8-cover] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:03 (3)
+SBY  0:09:34 [/home/ubuntu/verilog/formal/work/E8-cover] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:04 (4)
+SBY  0:09:34 [/home/ubuntu/verilog/formal/work/E8-cover] summary: engine_0 (smtbmc z3) returned pass
+SBY  0:09:34 [/home/ubuntu/verilog/formal/work/E8-cover] summary: cover trace: /home/ubuntu/verilog/formal/work/E8-cover/engine_0/trace0.vcd
+SBY  0:09:34 [/home/ubuntu/verilog/formal/work/E8-cover] summary:   reached cover statement eng_formal._witness_.check__home_ubuntu_verilog_formal_eng_formal_sv_346_cover_54 at /home/ubuntu/verilog/formal/eng_formal.sv:346.5-346.19 step 35
+SBY  0:09:34 [/home/ubuntu/verilog/formal/work/E8-cover] DONE (PASS, rc=0)

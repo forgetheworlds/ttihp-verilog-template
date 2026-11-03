@@ -1,0 +1,53 @@
+# PROTEUS synthesis area report
+# generated: 2026-11-02T21:52:22Z
+# yosys:     Yosys 0.33 (git sha1 2584903a060)
+# mode:      design
+# stdcell liberty: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+# corner:          sg13cmos5l typ 1.20V 25C (TT nom_typ_1p20V_25C)
+# sram liberty:    /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_sram/lib/RM_IHPSG13_2P_64x32_c2_typ_1p20V_25C.lib
+
+================================================================
+## design_d16
+================================================================
+
+=== tt_um_proteus ===
+
+   Number of wires:              37295
+   Number of wire bits:          45735
+   Number of public wires:        1008
+   Number of public wire bits:    9400
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              41537
+     sg13cmos5l_a21o_1             394
+     sg13cmos5l_a21oi_1           5224
+     sg13cmos5l_a221oi_1           949
+     sg13cmos5l_a22oi_1           4472
+     sg13cmos5l_and2_1             713
+     sg13cmos5l_and3_1              74
+     sg13cmos5l_and4_1              47
+     sg13cmos5l_dfrbpq_1          5235
+     sg13cmos5l_inv_1              908
+     sg13cmos5l_mux2_1             615
+     sg13cmos5l_mux4_1             105
+     sg13cmos5l_nand2_1           5933
+     sg13cmos5l_nand2b_1           592
+     sg13cmos5l_nand3_1            985
+     sg13cmos5l_nand3b_1            40
+     sg13cmos5l_nand4_1           1141
+     sg13cmos5l_nor2_1            2766
+     sg13cmos5l_nor2b_1            442
+     sg13cmos5l_nor3_1             749
+     sg13cmos5l_nor4_1             241
+     sg13cmos5l_o21ai_1           8594
+     sg13cmos5l_or2_1              435
+     sg13cmos5l_or3_1              102
+     sg13cmos5l_or4_1               37
+     sg13cmos5l_xnor2_1            461
+     sg13cmos5l_xor2_1             283
+
+   Chip area for module '\tt_um_proteus': 597675.758400
+
+# area source: /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+

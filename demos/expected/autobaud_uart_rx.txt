@@ -1,0 +1,7 @@
+clk=48000000 baud=9600 T=5000.000 d=5003 T_meas=5000 period_fixed=640000 err=0 bytes=00 ff 55 aa 01 80
+clk=48000000 baud=19200 T=2500.000 d=2503 T_meas=2500 period_fixed=320000 err=0 bytes=00 ff 55 aa 01 80
+clk=48000000 baud=57600 T=833.333 d=835 T_meas=832 period_fixed=106496 err=0 bytes=00 ff 55 aa 01 80 3c 7f
+clk=48000000 baud=115200 T=416.667 d=419 T_meas=416 period_fixed=53248 err=0 bytes=00 ff 55 aa 01 80 3c 7f
+clk=48000000 baud=250000 T=192.000 d=195 T_meas=192 period_fixed=24576 err=0 bytes=00 ff 55 aa 01 80 3c 7f
+clk=50000000 baud=115200 T=434.028 d=437 T_meas=434 period_fixed=55552 err=0 bytes=00 ff 55 aa 01 80 3c 7f
+clk=48000000 baud=115200 T=416.667 d=419 T_meas=416 period_fixed=53248 err=1 bytes=00 a5

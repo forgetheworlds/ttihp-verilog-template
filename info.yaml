@@ -1,56 +1,67 @@
 # Tiny Tapeout project information
 project:
-  title:        ""      # Project title
-  author:       ""      # Your name
-  discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  ""      # One line description of what your project does
-  language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz:     0       # Clock frequency in Hz (or 0 if not applicable)
+  title:        "PROTEUS - programmable protocol engine"
+  author:       "PROTEUS team"
+  discord:      ""
+  description:  "Three 24-bit protocol engines plus five protocol-agnostic assists (CRC, byte FIFO, shift register, NRZI, Manchester) on a 24-pin fabric with deadline pacer, edge capture, barriers and open drain."
+  language:     "Verilog"
+  clock_hz:     50000000
 
-  # How many tiles your design occupies? A single tile is about 167x108 uM.
-  tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
+  # 1289.28 x 710.64 um die; 902,417 um2 of standard-cell rows
+  # (research/tt-ihp-constraints.md, results/area_baseline.md).
+  tiles:        "6x4"
 
-  # Your top module name must start with "tt_um_". Make it unique by including your github username:
-  top_module:  "tt_um_example"
+  top_module:   "tt_um_proteus"
 
-  # List your project's source files here.
-  # Source files must be in ./src and you must list each source file separately, one per line.
-  # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
+  # Dependency order: the header is `include`d by every other file.
+  # Identical to the VERILOG_FILES list in docs/flow.md section 3 and to
+  # test/Makefile PROJECT_SOURCES / sim/Makefile VERILOG_SOURCES.
   source_files:
-    - "project.v"
+    - "proteus_defs.vh"
+    - "proteus_engine.v"
+    - "proteus_host.v"
+    - "proteus_assist.v"
+    - "crc_bit.v"
+    - "assist_fifo.v"
+    - "shiftreg32.v"
+    - "nrzi_enc.v"
+    - "nrzi_dec.v"
+    - "manchester_enc.v"
+    - "manchester_dec.v"
+    - "tt_um_proteus.v"
 
-# The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
-# This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
+# Logical functions, not net names.  Host pins are released to the fabric by
+# command 0x09 (HOST_DISABLE); see docs/pinout.md for the reclamation map.
 pinout:
   # Inputs
-  ui[0]: ""
-  ui[1]: ""
-  ui[2]: ""
-  ui[3]: ""
-  ui[4]: ""
-  ui[5]: ""
-  ui[6]: ""
-  ui[7]: ""
+  ui[0]: "HCLK"
+  ui[1]: "HCS_N"
+  ui[2]: "MOSI"
+  ui[3]: "fabric in"
+  ui[4]: "fabric in"
+  ui[5]: "fabric in"
+  ui[6]: "fabric in"
+  ui[7]: "fabric in"
 
   # Outputs
-  uo[0]: ""
-  uo[1]: ""
-  uo[2]: ""
-  uo[3]: ""
-  uo[4]: ""
-  uo[5]: ""
-  uo[6]: ""
-  uo[7]: ""
+  uo[0]: "MISO"
+  uo[1]: "IRQ"
+  uo[2]: "fabric out"
+  uo[3]: "fabric out"
+  uo[4]: "fabric out"
+  uo[5]: "fabric out"
+  uo[6]: "fabric out"
+  uo[7]: "fabric out"
 
   # Bidirectional pins
-  uio[0]: ""
-  uio[1]: ""
-  uio[2]: ""
-  uio[3]: ""
-  uio[4]: ""
-  uio[5]: ""
-  uio[6]: ""
-  uio[7]: ""
+  uio[0]: "fabric io"
+  uio[1]: "fabric io"
+  uio[2]: "fabric io"
+  uio[3]: "fabric io"
+  uio[4]: "fabric io"
+  uio[5]: "fabric io"
+  uio[6]: "fabric io"
+  uio[7]: "fabric io"
 
 # Do not change!
 yaml_version: 6

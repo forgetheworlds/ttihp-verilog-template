@@ -1,0 +1,6 @@
+sim_build/
+results.xml
+results_protocols.xml
+results_diff.xml
+results_smoke.xml
+__pycache__/

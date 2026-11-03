@@ -1,0 +1,6 @@
+clk=48000000 baud=115200 T=416.667 frames=32 err=0
+uart=00 ff 55 aa 9f c4 e9 0e 33 58 7d a2 c7 ec 11 36 5b 80 a5 ca ef 14 39 5e 83 a8 cd f2 17 3c 61 86
+spi =00 ff 55 aa 9f c4 e9 0e 33 58 7d a2 c7 ec 11 36 5b 80 a5 ca ef 14 39 5e 83 a8 cd f2 17 3c 61 86
+clk=48000000 baud=57600 T=833.333 frames=32 err=0
+uart=00 ff 55 aa 9f c4 e9 0e 33 58 7d a2 c7 ec 11 36 5b 80 a5 ca ef 14 39 5e 83 a8 cd f2 17 3c 61 86
+spi =00 ff 55 aa 9f c4 e9 0e 33 58 7d a2 c7 ec 11 36 5b 80 a5 ca ef 14 39 5e 83 a8 cd f2 17 3c 61 86

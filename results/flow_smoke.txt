@@ -1,0 +1,226 @@
+# PROTEUS flow verification log
+
+Host: aarch64 (Oracle/Ampere), 4 cores, 23 GB RAM, 64 GB free disk,
+Docker 29.8.0, Linux 7.0.0-1013-oracle.
+
+Snapshot note: the integration agent was editing `src/` during these runs. The
+1x1 smoke is RTL-independent (bench design in /tmp). The 6x4 row states the
+RTL snapshot it used; a final run after RTL freeze is required for sign-off.
+
+## Toolchain acquisition (2026-11-02)
+
+```
+$ docker manifest inspect ghcr.io/librelane/librelane:3.1.0.dev3
+  manifests: linux/arm64 + linux/amd64
+
+$ docker pull ghcr.io/librelane/librelane:3.1.0.dev3
+  Digest: sha256:d109140b8f17fc54f4fca998beb8124f4949404ec52e339eebd2250854a18b5a
+  72.23 s, image size 5,883,023,000 bytes
+
+$ docker pull ghcr.io/librelane/librelane:3.1.0.dev4
+  Digest: sha256:af2405f5d48d8fe14d406ecce913811177a95e365e3b625859677307cace2469
+  73.72 s
+
+$ docker run --rm ghcr.io/librelane/librelane:3.1.0.dev3 sh -lc \
+    'uname -m; python3 -c "import librelane; print(librelane.__version__)"; yosys -V; klayout -v'
+  aarch64
+  3.1.0.dev3
+  Yosys 0.66 (git sha1 86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51)
+  KLayout 0.30.9
+
+$ PDK_ROOT=$HOME/pdk
+$ git -C "$PDK_ROOT" fetch -q --depth 1 \
+    https://github.com/IHP-GmbH/IHP-Open-PDK.git 2bbec755dc67ca3db0261c3d6163e15735d66710
+$ git -C "$PDK_ROOT" checkout -q FETCH_HEAD
+  -> 1.3 GB in 19.78 s
+  -> $PDK_ROOT/ihp-sg13cmos5l/SOURCES = "IHP-Open-PDK 2bbec755..."
+```
+
+## Tile validation via tt-support-tools (PASS)
+
+```
+$ python3 - <<'EOF'   # /tmp/tt-support-tools @ branch ihp-sg13cmos5l
+from project_info import ProjectInfo
+sizes = yaml.safe_load(open('tech/ihp-sg13cmos5l/tile_sizes.yaml'))
+info  = yaml.safe_load(open('tt-template/info.yaml'))
+info['project']['tiles'] = '6x4'
+...
+EOF
+OK tiles= 6x4
+reject '6x4 ' -> Invalid value for 'tiles' in 'project' section: 6x4
+reject '6X4'  -> Invalid value for 'tiles' in 'project' section: 6X4
+reject '24'   -> Invalid value for 'tiles' in 'project' section: 24
+die 6x4 = 0 0 1289.28 710.64
+```
+
+`6x4` is valid; the string is exact (a trailing space or `6X4` is rejected).
+The accepted set is the key set of `tile_sizes.yaml`, not the stale list in
+`tt-template/info.yaml`. Die = 1289.28 x 710.64 um.
+
+## Test 1 - 1x1 TT-shaped smoke, full LibreLane (PASS)
+
+Project `/tmp/lltest`: `tt_um_prog_ram_bench` (8 x 8 async-read RAM wrapped in
+the standard TT port list), `DIE_AREA 0 0 202.08 154.98`,
+`FP_DEF_TEMPLATE dir::tt_block_1x1_pgvdd.def`, TT default `config.json`.
+
+```
+$ mkdir -p runs/smoke2
+$ docker run --rm -v /tmp/lltest:/work -v "$HOME/pdk":/pdk -w /work \
+    ghcr.io/librelane/librelane:3.1.0.dev4 \
+    python3 -m librelane --pdk-root /pdk --pdk ihp-sg13cmos5l --manual-pdk \
+      --run-tag smoke2 --force-run-dir runs/smoke2 config2.json
+```
+
+Result:
+
+```
+Flow complete.  Classic - Stage 80 - Report Manufacturability  80/80  0:02:07
+  Magic DRC 0 errors, LVS 0 errors, antenna 0 violations,
+  route__drc_errors 0 (after 4 detail-route iterations)
+  timing__setup__ws  +9.1605 ns   (nom_slow_1p08V_125C, 20 ns period)
+  timing__hold__ws   +0.1799 ns
+  design__instance__count 2278 (incl. fillers), stdcell 396 cells / 7,689.43 um2
+  run dir 43 MB
+Warnings: no PNR_SDC_FILE/SIGNOFF_SDC_FILE (generic fallback), deprecated
+FP_PDN_*/FP_IO_* config names, KLayout DRC skipped by config (RUN_KLAYOUT_DRC=0).
+```
+
+This proves on aarch64: arm64 image, PDK load, DEF template application,
+synthesis/place/route/STA/DRC/LVS all work.
+
+## Test 2 - 6x4 full PROTEUS, density 65 (routing did not converge locally)
+
+```
+command:
+  PL_TARGET_DENSITY_PCT=65 STAGE=/tmp/proteus-final RUN_TAG=wokwi scripts/flow.sh
+container: 8508b4307cb5 (ghcr.io/librelane/librelane:3.1.0.dev4)
+run dir:   /tmp/proteus-final/runs/wokwi
+
+snapshot at staging (2026-11-02T22:37Z):
+  proteus_engine.v c8cc546730b070ef0a1bed27721d416bbae5523edf44687b39be153e552176a4
+  proteus_host.v   e0d19eaf00eb8e9938ee646ade67672c3094e15292693012cca4b9a36ca5982d
+  tt_um_proteus.v  5f3f79d75345c5cd435bfd5945b2e902dc492d48219e3b01198308ca1faae41c
+  proteus_defs.vh  5c055b96cd6f3dbd881392f524b80cc0a8b4a52c4921c735558ef39510f27c22
+  (the top was edited at 22:38:26 to add cap_cnt4 for CAP_STATUS[3:0]; the
+   staged copy predates that 4-line change, which does not affect area or
+   timing at PROG_DEPTH=32. Everything else matches current src/.)
+```
+
+Stages completed: synthesis (LibreLane yosys 0.66), floorplan, global
+placement, detailed placement, CTS, three mid-PnR STA runs, global routing,
+antenna repair.
+
+Mid-PnR STA (estimated parasitics, 20 ns clock, `nom_typ_1p20V_25C`):
+
+| step | setup WS (ns) | hold WS (ns) |
+|---|---:|---:|
+| 36 STA after global place | +11.088 | -0.082 |
+| 38 STA after CTS | +11.087 | +0.281 |
+| 43 STA after global route | **+10.641** | +0.265 |
+
+**Interim sign-off (pre-detailed-route): setup +10.641 ns and hold +0.265 ns
+on a 20 ns clock at `nom_typ`, post-global-route.** This is the last completed
+STA; it is not the final sign-off because routed parasitics, the slow corner,
+and routed DRC/LVS are still missing.
+
+Detailed routing, attempt 1 (step 44/80):
+
+```
+entered 2026-11-03 00:27:47
+ran 3 h 27 min, killed on orchestrator instruction at 03:55
+~360-395% CPU, 8 threads, RSS steady at 3.13 GB
+openroad-detailedrouting.log = 0 bytes, drt-run-0/ empty, no state_out.json
+no error, no unplaced cells, no unrouted-net report
+`PL_TARGET_DENSITY_PCT=65`
+```
+
+Detailed routing, attempt 2 (bounded, step 45/80):
+
+```
+resumed from step 43 state at 03:55:07 (synthesis/placement/CTS/GRT reused)
+DRT_OPT_ITERS=8, DRT_THREADS=4, PL_TARGET_DENSITY_PCT=65
+ran 1 h 01 min, killed at 04:57 with the same signature:
+  openroad-detailedrouting.log 0 bytes, drt-run-0/ empty, no metrics
+```
+
+**Failure mode: detailed-routing non-convergence**, at 62.6% row utilisation
+(568-581k um^2 of 902,417). Placement succeeded (no GPL-0302), and setup
+timing is not the problem (+10.6 ns of slack). Neither DRT attempt produced a
+first-iteration artifact, so there is no DRC count, congestion-hotspot report
+or routed STA to quote.
+
+**v1 verdict: no routed GDS.** No `final/gds`, no routed DRC/LVS, no
+slow-corner number. Two attempts at `PL_TARGET_DENSITY_PCT=65` consumed
+3 h 27 min and 1 h 01 min. The 1x1 smoke above proves the flow mechanics; the
+blocker is DRT routability at this utilisation on 4 cores, not toolchain
+availability or timing.
+
+## Test 3 - v1-lite hedge (superseded, not a v2 failure)
+
+`/tmp/proteus-lite`: exact copy of the v1 `src/`, with only `FIFO_DEPTH=2`
+(engine in/out) and `CAP_DEPTH=2` (capture) changed. All 4 engines,
+PROG_DEPTH=32, ISA unchanged.
+
+```
+synth (lean flow): 545,147.78 um^2 / 38,797 cells
+                   60.41% of 902,417 row area, 100.68% of the 60% budget
+LibreLane at PL_TARGET_DENSITY_PCT=62:
+  started 2026-11-03 04:59 UTC, killed 05:07 (7 min 24 s)
+  had not reached floorplan (runs/wokwi contained resolved.json/tmp/warning.log
+  only), so it produced no routing outcome
+```
+
+The hedge was stopped when v2 measured better (497,927.19 um^2 flat / 55.18%
+row); depth-2 would also have required firmware and differential retests. It
+is recorded here as a superseded experiment, not as a failure of v2.
+
+## Test 4 - v2 tree (3 engines + assists) at density 60
+
+`/tmp/proteus-v2` from `v2/src` (12-file source list), `PL_TARGET_DENSITY_PCT=60`,
+`OPENROAD_THREADS=4`, `DRT_OPT_ITERS` bounded.
+
+```
+flow start 2026-11-03 05:08 UTC
+synthesis -> floorplan -> placement -> CTS -> 3x STA -> global route:
+  all completed; detailed routing entered 05:59:17
+step 34 (detailed placement): 48,738 instances, 641,029 um^2 incl. fillers
+  (logic flat area 497,927 um^2 = 55.18% of 902,417 rows)
+step 43 (post-global-route STA):
+  setup WS +11.0205 ns, hold WS +0.2878 ns (nom_typ, 20 ns clock)
+detailed routing attempt 1: started 05:59:17 (1 thread, OPENROAD_THREADS null)
+  ran 40 min, killed
+detailed routing attempt 2: resumed from step 43 at 06:39:13
+  OPENROAD_THREADS=4, DRT_OPT_ITERS=8, DRT_SAVE_DRC_REPORT_ITERS=1
+  ran 1 h 30 min, killed at 08:09
+  signature: 378-383% CPU, 2.0 GB RSS, step log 0 bytes, drt-run-0/ empty,
+  no DRC/unrouted report
+```
+
+**v2 DRT verdict: did not converge within the 1.5 h bound**, same signature as
+v1. The router produces no iteration artifacts through LibreLane's buffered
+subprocess, so the failure is either extreme per-iteration runtime or a
+livelock; it cannot be distinguished from outside.
+
+Attempt 3 (bounded harder): DRT-only resume from step 43,
+`DRT_OPT_ITERS=4`, 4 threads, `DRT_SAVE_DRC_REPORT_ITERS=1`, 08:09-09:30 UTC
+(80 min). **No DRC produced**: step 46 log still 0 bytes, `drt-run-0/` empty,
+no per-iteration report. Killed.
+
+Attempt 4 (threading test): DRT-only resume from step 43,
+`OPENROAD_THREADS=1`, `DRT_OPT_ITERS=4`, 09:30-10:15 UTC (45 min), killed.
+**Also silent**: 101% CPU, step 47 log 0 bytes, `drt-run-0/` empty. The image
+contains two OpenROAD builds, both the same binary
+(`dcf36133a369abc8f3c5e5738cd4d82e4903c0e0`), and LibreLane has no
+`OPENROAD_EXE`/`OPENROAD_BIN` override (it uses `openroad` from `PATH`), so
+there was no alternative local binary to try.
+
+**Conclusion (b): the local aarch64 OpenROAD/DRT runtime is the blocker**, not
+density and not threading. Full attempt table and configurations:
+`results/flow_report.md`. No local routed GDS exists for v1 or v2.
+
+**Authoritative gate:** the Tiny Tapeout `gds.yaml` action on GitHub's x86_64
+runners, not this aarch64 host. The identical DRT signature at 64.4% (v1) and
+55.2% (v2, logic area) points at the local tool/runtime rather than the design
+being unroutable; push the repo and use CI for the sign-off GDS, DRC/LVS and
+slow-corner timing. Local area and post-global-route STA remain valid evidence.
+
