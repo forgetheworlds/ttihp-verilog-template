@@ -9,7 +9,7 @@ project:
 
   # 1289.28 x 710.64 um die; 902,417 um2 of standard-cell rows
   # (research/tt-ihp-constraints.md, results/area_baseline.md).
-  tiles:        "6x4"
+  tiles:        "8x4"
 
   top_module:   "tt_um_proteus"
 
