@@ -15,6 +15,10 @@
   "//": "Users have reported that values up to 80 worked well for them.",
   "PL_TARGET_DENSITY_PCT": 60,
 
+  "//": "Area-first synthesis: the timing-driven default mapped 636,909 um2 at 6x4,",
+  "//": "22.7% above the area-optimised mapping, and detailed placement then failed.",
+  "SYNTH_STRATEGY": "AREA 0",
+
   "//": "CLOCK_PERIOD - Increase this in case you are getting setup time violations.",
   "//": "The value is in nanoseconds, so 20ns == 50MHz.",
   "CLOCK_PERIOD": 20,
