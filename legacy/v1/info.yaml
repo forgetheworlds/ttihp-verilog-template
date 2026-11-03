@@ -1,0 +1,58 @@
+# Tiny Tapeout project information
+project:
+  title:        "PROTEUS - programmable protocol engine"
+  author:       "PROTEUS team"
+  discord:      ""
+  description:  "Four 24-bit protocol engines: 24-pin fabric, 24.8 deadline pacer, edge capture, barriers, open drain."
+  language:     "Verilog"
+  clock_hz:     50000000
+
+  # 1289.28 x 710.64 um die; 902,417 um2 of standard-cell rows
+  # (research/tt-ihp-constraints.md, results/area_baseline.md).
+  tiles:        "6x4"
+
+  top_module:   "tt_um_proteus"
+
+  # Dependency order: the header is `include`d by every other file.
+  # Identical to the VERILOG_FILES list in docs/flow.md section 3.
+  source_files:
+    - "proteus_defs.vh"
+    - "proteus_engine.v"
+    - "proteus_host.v"
+    - "tt_um_proteus.v"
+
+# Logical functions, not net names.  Host pins are released to the fabric by
+# command 0x09 (HOST_DISABLE); see docs/pinout.md for the reclamation map.
+pinout:
+  # Inputs
+  ui[0]: "HCLK"
+  ui[1]: "HCS_N"
+  ui[2]: "MOSI"
+  ui[3]: "fabric in"
+  ui[4]: "fabric in"
+  ui[5]: "fabric in"
+  ui[6]: "fabric in"
+  ui[7]: "fabric in"
+
+  # Outputs
+  uo[0]: "MISO"
+  uo[1]: "IRQ"
+  uo[2]: "fabric out"
+  uo[3]: "fabric out"
+  uo[4]: "fabric out"
+  uo[5]: "fabric out"
+  uo[6]: "fabric out"
+  uo[7]: "fabric out"
+
+  # Bidirectional pins
+  uio[0]: "fabric io"
+  uio[1]: "fabric io"
+  uio[2]: "fabric io"
+  uio[3]: "fabric io"
+  uio[4]: "fabric io"
+  uio[5]: "fabric io"
+  uio[6]: "fabric io"
+  uio[7]: "fabric io"
+
+# Do not change!
+yaml_version: 6

@@ -1,0 +1,48 @@
+SBY  0:02:00 [/home/ubuntu/verilog/formal/work/E0-prove] Removing directory '/home/ubuntu/verilog/formal/work/E0-prove'.
+SBY  0:02:00 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0: smtbmc z3
+SBY  0:02:00 [/home/ubuntu/verilog/formal/work/E0-prove] base: starting process "cd /home/ubuntu/verilog/formal/work/E0-prove/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY  0:02:00 [/home/ubuntu/verilog/formal/work/E0-prove] base: Warning: Replacing memory \prog_mem with list of registers. See /home/ubuntu/verilog/src/proteus_engine.v:1093
+SBY  0:02:00 [/home/ubuntu/verilog/formal/work/E0-prove] base: Warning: Replacing memory \regs with list of registers. See /home/ubuntu/verilog/src/proteus_engine.v:1086
+SBY  0:02:00 [/home/ubuntu/verilog/formal/work/E0-prove] base: Warning: Replacing memory \out_mem with list of registers. See /home/ubuntu/verilog/src/proteus_engine.v:1083
+SBY  0:02:00 [/home/ubuntu/verilog/formal/work/E0-prove] base: Warning: Replacing memory \in_mem with list of registers. See /home/ubuntu/verilog/src/proteus_engine.v:1082
+SBY  0:02:01 [/home/ubuntu/verilog/formal/work/E0-prove] base: finished (returncode=0)
+SBY  0:02:01 [/home/ubuntu/verilog/formal/work/E0-prove] prep: starting process "cd /home/ubuntu/verilog/formal/work/E0-prove/model; yosys -ql design_prep.log design_prep.ys"
+SBY  0:02:01 [/home/ubuntu/verilog/formal/work/E0-prove] prep: finished (returncode=0)
+SBY  0:02:01 [/home/ubuntu/verilog/formal/work/E0-prove] smt2: starting process "cd /home/ubuntu/verilog/formal/work/E0-prove/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY  0:02:01 [/home/ubuntu/verilog/formal/work/E0-prove] smt2: finished (returncode=0)
+SBY  0:02:01 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: starting process "cd /home/ubuntu/verilog/formal/work/E0-prove; yosys-smtbmc -s z3 --presat --noprogress -t 40  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2"
+SBY  0:02:01 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.induction: starting process "cd /home/ubuntu/verilog/formal/work/E0-prove; yosys-smtbmc -s z3 --presat -i --noprogress -t 40  --append 0 --dump-vcd engine_0/trace_induct.vcd --dump-yw engine_0/trace_induct.yw --dump-vlogtb engine_0/trace_induct_tb.v --dump-smtc engine_0/trace_induct.smtc model/design_smt2.smt2"
+SBY  0:02:01 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Solver: z3
+SBY  0:02:01 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.induction: ##   0:00:00  Solver: z3
+SBY  0:02:01 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.induction: ##   0:00:00  Trying induction in step 40..
+SBY  0:02:01 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 0..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 0..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 1..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.induction: ##   0:00:00  Trying induction in step 39..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 1..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 2..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 2..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 3..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 3..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 4..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 4..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 5..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 5..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 6..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 6..
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  BMC failed!
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Assert failed in eng_formal: /home/ubuntu/verilog/formal/eng_formal.sv:220.5-220.38 (_witness_.check__home_ubuntu_verilog_formal_eng_formal_sv_220_assert_48)
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Writing trace to VCD file: engine_0/trace.vcd
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace_tb.v
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Writing trace to constraints file: engine_0/trace.smtc
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace.yw
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: ##   0:00:00  Status: failed
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: finished (returncode=1)
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.basecase: Status returned by engine for basecase: FAIL
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] engine_0.induction: terminating process
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:02 (2)
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:02 (2)
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] summary: engine_0 (smtbmc z3) returned FAIL for basecase
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] summary: counterexample trace [basecase]: /home/ubuntu/verilog/formal/work/E0-prove/engine_0/trace.vcd
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] summary:   failed assertion eng_formal._witness_.check__home_ubuntu_verilog_formal_eng_formal_sv_220_assert_48 at /home/ubuntu/verilog/formal/eng_formal.sv:220.5-220.38 step 6
+SBY  0:02:02 [/home/ubuntu/verilog/formal/work/E0-prove] DONE (FAIL, rc=2)

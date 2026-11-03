@@ -1,19 +1,23 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-/* This testbench just instantiates the module and makes some convenient wires
-   that can be driven / tested by the cocotb test.py.
+/* PROTEUS v2 (hybrid) testbench for the Tiny Tapeout harness.
+
+   Same top port list as v1 (test/tb.v), so the netlist flow is unchanged.
+   Instantiates the real top and exposes the pins as regs/wires that
+   test/test.py drives.  No behaviour lives here: the whole protocol is
+   exercised over ui_in[2:0] / uo_out[0] (host SPI) and the uio pads, so the
+   same testbench works against the gate-level netlist (GATES=yes).
 */
 module tb ();
 
-  // Dump the signals to a FST file. You can view it with gtkwave or surfer.
+  // Dump the signals to an FST file. You can view it with gtkwave or surfer.
   initial begin
     $dumpfile("tb.fst");
     $dumpvars(0, tb);
     #1;
   end
 
-  // Wire up the inputs and outputs:
   reg clk;
   reg rst_n;
   reg ena;
@@ -23,10 +27,9 @@ module tb ();
   wire [7:0] uio_out;
   wire [7:0] uio_oe;
 
-  // Replace tt_um_example with your module name:
-  tt_um_example user_project (
-      .ui_in  (ui_in),    // Dedicated inputs
-      .uo_out (uo_out),   // Dedicated outputs
+  tt_um_proteus user_project (
+      .ui_in  (ui_in),    // Dedicated inputs: [2:0] host SPI, [7:3] fabric
+      .uo_out (uo_out),   // Dedicated outputs: [0] host MISO, [1] IRQ, [7:2] fabric
       .uio_in (uio_in),   // IOs: Input path
       .uio_out(uio_out),  // IOs: Output path
       .uio_oe (uio_oe),   // IOs: Enable path (active high: 0=input, 1=output)
@@ -36,3 +39,5 @@ module tb ();
   );
 
 endmodule
+
+`default_nettype wire

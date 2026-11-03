@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="654" viewBox="0 0 1000 654" role="img" aria-labelledby="t d">
+<title id="t">Pin fabric, open-drain release and collision</title>
+<desc id="d">How three engine pin write buses merge into uo_q/uio_q/oe_q/od_q in engine-index order, then one gated assist stage, then the host's last write; how the open-drain release computes uio_oe; and how the collision comparator flags a contested pad.</desc>
+<style>
+  :root { --fg:#1f2328; --muted:#57606a; --border:#c9d1d9;
+           --surface:#f6f8fa; --accent:#0969da; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg:#e6edf3; --muted:#8b949e; --border:#30363d;
+             --surface:#161b22; --accent:#58a6ff; }
+  }
+  text { font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; fill:var(--fg,#1f2328); }
+  .m { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  .dim { fill:var(--muted,#57606a); }
+  .acc { fill:var(--accent,#0969da); }
+  .box { fill:none; stroke:var(--border,#c9d1d9); stroke-width:1.2; }
+  .hi  { fill:none; stroke:var(--accent,#0969da); stroke-width:1.4; }
+  .w   { stroke:var(--fg,#1f2328); stroke-width:1.6; fill:none; }
+  .tick{ stroke:var(--accent,#0969da); stroke-width:1; stroke-dasharray:3 3; fill:none; }
+  .grid{ stroke:var(--border,#c9d1d9); stroke-width:1; fill:none; }
+  .arrow { stroke:var(--fg,#1f2328); stroke-width:1.2; fill:none; }
+</style>
+<text x="24" y="26" font-size="17" text-anchor="start" class="" font-weight="600">Pin fabric: merge, open-drain release, collision</text>
+<text x="24" y="44" font-size="11.5" text-anchor="start" class="dim">Every engine can write every bank; the top decides what reaches the pad. One 8-bit register per bank, one write bus per engine, one gated assist stage.</text>
+<rect x="24" y="78" width="214" height="54" rx="4" class="box" />
+<text x="38" y="100" font-size="11.5" text-anchor="start" class="" font-weight="600">engine 0</text>
+<text x="38" y="118" font-size="9.5" text-anchor="start" class="m dim">uo / uio / oe / od  ×  {data, mask}</text>
+<line x1="238" y1="105" x2="266" y2="105" class="arrow" />
+<polyline points="261,100 266,105 261,110" class="arrow" />
+<rect x="24" y="142" width="214" height="54" rx="4" class="box" />
+<text x="38" y="164" font-size="11.5" text-anchor="start" class="" font-weight="600">engine 1</text>
+<text x="38" y="182" font-size="9.5" text-anchor="start" class="m dim">uo / uio / oe / od  ×  {data, mask}</text>
+<line x1="238" y1="169" x2="266" y2="169" class="arrow" />
+<polyline points="261,164 266,169 261,174" class="arrow" />
+<rect x="24" y="206" width="214" height="54" rx="4" class="box" />
+<text x="38" y="228" font-size="11.5" text-anchor="start" class="" font-weight="600">engine 2</text>
+<text x="38" y="246" font-size="9.5" text-anchor="start" class="m dim">uo / uio / oe / od  ×  {data, mask}</text>
+<line x1="238" y1="233" x2="266" y2="233" class="arrow" />
+<polyline points="261,228 266,233 261,238" class="arrow" />
+<rect x="24" y="270" width="214" height="54" rx="4" class="hi" />
+<text x="38" y="292" font-size="11.5" text-anchor="start" class="acc" font-weight="600">assist stage (5 blocks)</text>
+<text x="38" y="310" font-size="9.5" text-anchor="start" class="m dim">PINCFG.en · push-pull · OD cleared</text>
+<line x1="238" y1="297" x2="266" y2="297" class="arrow" />
+<polyline points="261,292 266,297 261,302" class="arrow" />
+<rect x="266" y="78" width="330" height="246" rx="4" class="hi" />
+<text x="280" y="100" font-size="11.5" text-anchor="start" class="acc" font-weight="600">merge, per bank</text>
+<text x="280" y="122" font-size="10" text-anchor="start" class="m">for each of uo_q, uio_q, oe_q, od_q:</text>
+<text x="292" y="140" font-size="10" text-anchor="start" class="m">reg = (reg &amp; ~mask) | (data &amp; mask)</text>
+<text x="280" y="164" font-size="10" text-anchor="start" class="m dim">applied engine 0 → 1 → 2,</text>
+<text x="280" y="182" font-size="10" text-anchor="start" class="m dim">so engine 2 wins a bit engine 0 also drove</text>
+<text x="280" y="200" font-size="10" text-anchor="start" class="m dim">then the assist stage, gated per block</text>
+<text x="280" y="218" font-size="10" text-anchor="start" class="m dim">by PINCFG.en (push-pull, OD cleared)</text>
+<text x="280" y="242" font-size="10" text-anchor="start" class="m dim">then the host's write to 0x0520..0x0523,</text>
+<text x="280" y="260" font-size="10" text-anchor="start" class="m dim">which wins over engine and assist traffic</text>
+<text x="280" y="284" font-size="10" text-anchor="start" class="m dim">each engine presents a bus every cycle it</text>
+<text x="280" y="302" font-size="10" text-anchor="start" class="m dim">executes; mask = 0 means "no write"</text>
+<rect x="624" y="78" width="180" height="44" rx="4" class="box" />
+<text x="638" y="97" font-size="11" text-anchor="start" class="m" font-weight="600">uo_q</text>
+<text x="638" y="112" font-size="9.5" text-anchor="start" class="dim">uo_out[7:2]</text>
+<rect x="624" y="132" width="180" height="44" rx="4" class="box" />
+<text x="638" y="151" font-size="11" text-anchor="start" class="m" font-weight="600">uio_q</text>
+<text x="638" y="166" font-size="9.5" text-anchor="start" class="dim">value to drive</text>
+<rect x="624" y="186" width="180" height="44" rx="4" class="box" />
+<text x="638" y="205" font-size="11" text-anchor="start" class="m" font-weight="600">oe_q</text>
+<text x="638" y="220" font-size="9.5" text-anchor="start" class="dim">output enable</text>
+<rect x="624" y="240" width="180" height="44" rx="4" class="box" />
+<text x="638" y="259" font-size="11" text-anchor="start" class="m" font-weight="600">od_q</text>
+<text x="638" y="274" font-size="9.5" text-anchor="start" class="dim">open-drain mode</text>
+<line x1="596" y1="120" x2="624" y2="100" class="arrow" />
+<polyline points="619,95 624,100 619,105" class="arrow" />
+<line x1="596" y1="154" x2="624" y2="154" class="arrow" />
+<polyline points="619,195 624,200 619,205" class="arrow" />
+<line x1="596" y1="208" x2="624" y2="208" class="arrow" />
+<polyline points="619,249 624,254 619,259" class="arrow" />
+<line x1="596" y1="262" x2="624" y2="262" class="arrow" />
+<polyline points="619,295 624,300 619,305" class="arrow" />
+<rect x="20" y="344" width="246" height="92" rx="4" class="box" />
+<text x="32" y="362" font-size="10" text-anchor="start" class="" font-weight="600">per pin</text>
+<text x="32" y="382" font-size="10" text-anchor="start" class="m dim">od</text>
+<text x="90" y="382" font-size="10" text-anchor="start" class="m dim">out</text>
+<text x="148" y="382" font-size="10" text-anchor="start" class="m dim">oe_eff</text>
+<text x="206" y="382" font-size="10" text-anchor="start" class="m dim">pad</text>
+<text x="32" y="400" font-size="10" text-anchor="start" class="m">0</text>
+<text x="90" y="400" font-size="10" text-anchor="start" class="m">x</text>
+<text x="148" y="400" font-size="10" text-anchor="start" class="m">oe_q</text>
+<text x="206" y="400" font-size="10" text-anchor="start" class="m">push-pull</text>
+<text x="32" y="418" font-size="10" text-anchor="start" class="m">1</text>
+<text x="90" y="418" font-size="10" text-anchor="start" class="m">0</text>
+<text x="148" y="418" font-size="10" text-anchor="start" class="m">oe_q</text>
+<text x="206" y="418" font-size="10" text-anchor="start" class="m">low</text>
+<text x="32" y="436" font-size="10" text-anchor="start" class="m">1</text>
+<text x="90" y="436" font-size="10" text-anchor="start" class="m">1</text>
+<text x="148" y="436" font-size="10" text-anchor="start" class="m">0</text>
+<text x="206" y="436" font-size="10" text-anchor="start" class="m">released</text>
+<line x1="32" y1="386" x2="254" y2="386" class="grid" />
+<rect x="290" y="344" width="306" height="58" rx="4" class="hi" />
+<text x="302" y="366" font-size="11.5" text-anchor="start" class="m" font-weight="600">uio_oe = oe_q &amp; ~(od_q &amp; uio_q)</text>
+<text x="302" y="386" font-size="9.5" text-anchor="start" class="m dim">od=1, out=1 → the pad is released (high-Z)</text>
+<line x1="596" y1="373" x2="620" y2="373" class="arrow" />
+<polyline points="615,368 620,373 615,378" class="arrow" />
+<rect x="620" y="344" width="180" height="58" rx="4" class="box" />
+<text x="634" y="368" font-size="11.5" text-anchor="start" class="" font-weight="600">uio[n] pad</text>
+<text x="634" y="386" font-size="9.5" text-anchor="start" class="m dim">read = uio_in (raw level)</text>
+<text x="812" y="340" font-size="9.5" text-anchor="start" class="m dim">external pull-up</text>
+<line x1="810" y1="356" x2="810" y2="332" class="arrow" />
+<polyline points="805,337 810,332 815,337" class="arrow" />
+<line x1="706" y1="282" x2="706" y2="344" class="arrow" />
+<polyline points="701,339 706,344 711,339" class="arrow" />
+<text x="714" y="316" font-size="9.5" text-anchor="start" class="m dim">od_q / uio_q / oe_q</text>
+<rect x="20" y="452" width="920" height="124" rx="4" class="box" />
+<text x="34" y="474" font-size="11.5" text-anchor="start" class="" font-weight="600">collision comparator — per pin, sticky, sampled from the raw pad</text>
+<text x="34" y="498" font-size="10" text-anchor="start" class="m">od_low    = oe_q &amp; od_q &amp; ~uio_q</text>
+<text x="34" y="516" font-size="10" text-anchor="start" class="m">pp_driven = oe_q &amp; ~od_q</text>
+<text x="34" y="534" font-size="10" text-anchor="start" class="m">coll_now  = (pp_driven &amp; (uio_in ^ uio_q)) | (od_low &amp; uio_in)</text>
+<text x="34" y="558" font-size="10" text-anchor="start" class="m dim">collision_q &lt;= collision_q | coll_now        // sticky; host clears it by writing 0x0511</text>
+<line x1="810" y1="402" x2="810" y2="452" class="arrow" />
+<polyline points="805,447 810,452 815,447" class="arrow" />
+<text x="818" y="432" font-size="9.5" text-anchor="start" class="m dim">uio_in</text>
+<text x="24" y="600" font-size="10" text-anchor="start" class="m dim">A push-pull bit flags when the pad disagrees with the driven value; an open-drain bit driven low flags when the pad reads high.</text>
+<text x="24" y="618" font-size="10" text-anchor="start" class="m dim">STATUS[3] is |collision_q; 0x0510 returns the per-pin mask, so the host learns which pad lost arbitration.</text>
+<text x="24" y="640" font-size="9.5" text-anchor="start" class="m dim">Sources: src/tt_um_proteus.v (fabric merge, assist stage, host-last write, collision, pads) · src/proteus_assist.v (PINCFG) · docs/architecture.md §4 · docs/pinout.md §2.1–2.2</text>
+
+</svg>

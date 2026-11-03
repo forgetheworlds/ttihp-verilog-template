@@ -1,0 +1,45 @@
+# proteus_engine PROG_DEPTH sweep (standalone, flattened)
+# generated : 2026-11-03T11:16:51Z
+# yosys     : Yosys 0.33 (git sha1 2584903a060)
+# liberty   : /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib
+# src sha256:
+#   c7f5449ea7751788594efa7b156f2d064ffe9caf00530bfad1bf47a006795ffc  src/proteus_engine.v
+
+==================================================================
+## proteus_engine PROG_DEPTH=32
+==================================================================
+command: yosys -p "read_verilog -I src src/proteus_engine.v; chparam -set PROG_DEPTH 32 proteus_engine; hierarchy -check -top proteus_engine; synth -top proteus_engine -flatten; dfflibmap -liberty /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib; abc -liberty /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib; opt_clean; stat -liberty /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib"
+   Number of cells:              14786
+  cell sg13cmos5l_dfrbpq_1 (noninv, pins=4, area=48.99) is a direct match for cell type $_DFF_PN0_.
+    \sg13cmos5l_dfrbpq_1 _DFF_PN0_ (.CLK( C), .D( D), .Q( Q), .RESET_B( R));
+  mapped 1104 $_DFF_PN0_ cells to \sg13cmos5l_dfrbpq_1 cells.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sg13cmos5l_dfrbpq_1".
+   Number of cells:               9589
+     sg13cmos5l_dfrbpq_1          1104
+   Chip area for module '\proteus_engine': 132277.698000
+
+==================================================================
+## proteus_engine PROG_DEPTH=24
+==================================================================
+command: yosys -p "read_verilog -I src src/proteus_engine.v; chparam -set PROG_DEPTH 24 proteus_engine; hierarchy -check -top proteus_engine; synth -top proteus_engine -flatten; dfflibmap -liberty /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib; abc -liberty /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib; opt_clean; stat -liberty /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib"
+   Number of cells:              12786
+  cell sg13cmos5l_dfrbpq_1 (noninv, pins=4, area=48.99) is a direct match for cell type $_DFF_PN0_.
+    \sg13cmos5l_dfrbpq_1 _DFF_PN0_ (.CLK( C), .D( D), .Q( Q), .RESET_B( R));
+  mapped 904 $_DFF_PN0_ cells to \sg13cmos5l_dfrbpq_1 cells.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sg13cmos5l_dfrbpq_1".
+   Number of cells:               7690
+     sg13cmos5l_dfrbpq_1           904
+   Chip area for module '\proteus_engine': 110324.894400
+
+==================================================================
+## proteus_engine PROG_DEPTH=16
+==================================================================
+command: yosys -p "read_verilog -I src src/proteus_engine.v; chparam -set PROG_DEPTH 16 proteus_engine; hierarchy -check -top proteus_engine; synth -top proteus_engine -flatten; dfflibmap -liberty /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib; abc -liberty /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib; opt_clean; stat -liberty /home/ubuntu/pdk/ihp-sg13cmos5l/libs.ref/sg13cmos5l_stdcell/lib/sg13cmos5l_stdcell_typ_1p20V_25C.lib"
+   Number of cells:              10709
+  cell sg13cmos5l_dfrbpq_1 (noninv, pins=4, area=48.99) is a direct match for cell type $_DFF_PN0_.
+    \sg13cmos5l_dfrbpq_1 _DFF_PN0_ (.CLK( C), .D( D), .Q( Q), .RESET_B( R));
+  mapped 702 $_DFF_PN0_ cells to \sg13cmos5l_dfrbpq_1 cells.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sg13cmos5l_dfrbpq_1".
+   Number of cells:               6723
+     sg13cmos5l_dfrbpq_1           702
+   Chip area for module '\proteus_engine': 90041.452200

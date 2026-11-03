@@ -1,0 +1,237 @@
+#!/usr/bin/env python3
+"""gen_fpga_rom.py -- build the DE2 boot ROM from firmware/*.asm.
+
+The FPGA build cannot read files at synthesis time (no $readmemh path
+dependencies), so the program images are emitted as a Verilog-2001 `case`
+function in fpga/rom_programs.vh.  A Quartus .mif of the same flat image is
+written next to it as documentation.
+
+Image model
+-----------
+  * One image per *program* (one engine of one firmware/*.asm file),
+    FPGA_ROM_DEPTH = 64 instructions wide.  A file that targets two engines
+    contributes two images: firmware/i2c_master.asm is a 32+32 split over
+    engines 3 and 2, so banks 4 and 5 hold the same file's engine-3 and
+    engine-2 programs.  Unused entries are HALT words so an engine that is
+    not part of a demo stops instead of executing zeros (an all-zero word
+    decodes as LDI r0, 0 and would spin).
+  * A demo selects one program per engine: fpga_demo_prog(demo, eng).
+  * The boot loader streams a program into an engine as one WRITE_ADDR burst
+    of 4*FPGA_ROM_DEPTH bytes starting at 0x0100 + e*0x100; byte 3 of each
+    instruction is a don't-care lane that tt_um_proteus drops
+    (src/tt_um_proteus.v `pm_ok` requires pm_byte != 3), so the burst stays
+    address-contiguous.
+
+Why 64 instructions: the FPGA top instantiates tt_um_proteus with
+PROG_DEPTH = 64, so the ROM image must be 64 instructions per engine.  Every
+current program fits 32 words (the I2C master is 32 + 32 across engines 3
+and 2); the rest of each image is HALT fill.
+
+Usage
+-----
+    python3 tools/gen_fpga_rom.py            # regenerate .vh and .mif
+    python3 tools/gen_fpga_rom.py --check    # exit 1 if outputs are stale
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+TOOLS = ROOT / "tools"
+FPGA = ROOT / "fpga"
+FIRMWARE = ROOT / "firmware"
+
+sys.path.insert(0, str(TOOLS))
+
+from asm import assemble_file, AsmError          # noqa: E402
+from isa import PROG_DEPTH, disasm               # noqa: E402
+
+# ---------------------------------------------------------------------------
+# Build configuration -- keep in sync with fpga/tt_um_proteus_fpga.v
+# ---------------------------------------------------------------------------
+ROM_DEPTH = 64                 # instructions per engine image (PROG_DEPTH)
+HALT_WORD = 0x38 << 17         # OP_HALT, everything else zero
+PROG_HALT = 7                  # "all HALT" pseudo program id
+
+# Assembled programs, in id order.  The id is the ROM bank number; the tag is
+# the localparam suffix, so one file can contribute one bank per engine.
+PROGRAMS = [
+    ("pin_blink.asm",   0, "PIN_BLINK"),      # 0: engine 0 blinker
+    ("uart_tx.asm",     0, "UART_TX"),        # 1: engine 0 UART TX
+    ("uart_rx.asm",     1, "UART_RX"),        # 2: engine 1 UART RX
+    ("spi_master.asm",  2, "SPI_MASTER"),     # 3: engine 2 SPI master
+    ("i2c_master.asm",  3, "I2C_MASTER_E3"),  # 4: engine 3 START/WRITE half
+    ("i2c_master.asm",  2, "I2C_MASTER_E2"),  # 5: engine 2 READ/STOP half
+]
+
+# demo id -> {engine: program id}; engines absent from the map get PROG_HALT.
+DEMOS = [
+    ("00 pin blink",   {0: 0}),
+    ("01 UART loop",   {0: 1, 1: 2}),
+    ("10 SPI loop",    {2: 3}),
+    ("11 I2C loop",    {3: 4, 2: 5}),
+]
+
+ROM_BANKS = 8                  # 3-bit bank id; 8 * 64 = 512 words = .mif depth
+
+
+def build_programs() -> list[list[int]]:
+    """Assemble every program; return a ROM_BANKS-long list of word images."""
+    images: list[list[int]] = []
+    cache: dict[str, dict] = {}
+    for fname, eng, _tag in PROGRAMS:
+        path = FIRMWARE / fname
+        if not path.exists():
+            raise SystemExit(f"gen_fpga_rom: missing {path}")
+        if fname not in cache:
+            try:
+                cache[fname] = assemble_file(str(path), depth=ROM_DEPTH)
+            except AsmError as exc:
+                raise SystemExit(f"gen_fpga_rom: {fname}: {exc}") from None
+        words = list(cache[fname]["programs"].get(eng, []))
+        if not words:
+            raise SystemExit(f"gen_fpga_rom: {fname}: no program for engine {eng}")
+        if len(words) > ROM_DEPTH:
+            raise SystemExit(f"gen_fpga_rom: {fname}: engine {eng}: {len(words)} "
+                             f"words > ROM depth {ROM_DEPTH}")
+        words += [HALT_WORD] * (ROM_DEPTH - len(words))
+        images.append(words)
+
+    while len(images) < ROM_BANKS:
+        images.append([HALT_WORD] * ROM_DEPTH)
+    return images
+
+
+def demo_map() -> dict[tuple[int, int], int]:
+    table: dict[tuple[int, int], int] = {}
+    for demo, (_name, progs) in enumerate(DEMOS):
+        for eng in range(4):
+            table[(demo, eng)] = progs.get(eng, PROG_HALT)
+    return table
+
+
+def emit_vh(images: list[list[int]]) -> str:
+    out: list[str] = []
+    w = out.append
+    w("// ===========================================================================")
+    w("// rom_programs.vh -- GENERATED by tools/gen_fpga_rom.py.  DO NOT EDIT.")
+    w("//")
+    w("// Boot ROM for the DE2 build: one %d-word program image per ROM bank," % ROM_DEPTH)
+    w("// assembled from firmware/*.asm by tools/asm.py.  Verilog-2001 only: a")
+    w("// combinational `case` function, no $readmemh, no synthesis-time file I/O.")
+    w("// Regenerate with:  python3 tools/gen_fpga_rom.py")
+    w("// ===========================================================================")
+    w("")
+    w("`ifndef PROTEUS_FPGA_ROM_VH")
+    w("`define PROTEUS_FPGA_ROM_VH")
+    w("")
+    w("// instructions per engine image (must equal tt_um_proteus PROG_DEPTH)")
+    w("localparam FPGA_ROM_DEPTH = %d;" % ROM_DEPTH)
+    w("localparam [23:0] FPGA_HALT_WORD = 24'h%06x;" % HALT_WORD)
+    w("localparam [2:0]  FPGA_PROG_HALT = 3'd%d;" % PROG_HALT)
+    w("")
+    for pid, (fname, eng, tag) in enumerate(PROGRAMS):
+        w("localparam [2:0]  FPGA_PROG_%s = 3'd%d;%s// %s, engine %d"
+          % (tag.ljust(14), pid, " " * max(0, 6 - len(str(pid))), fname, eng))
+    w("")
+    w("// demo -> program id for one engine")
+    w("function [2:0] fpga_demo_prog;")
+    w("  input [1:0] demo;")
+    w("  input [1:0] eng;")
+    w("  begin")
+    w("    case ({demo, eng})")
+    table = demo_map()
+    for demo in range(len(DEMOS)):
+        for eng in range(4):
+            w("      4'd%-2d: fpga_demo_prog = 3'd%d;   // demo %d, engine %d"
+              % (demo * 4 + eng, table[(demo, eng)], demo, eng))
+    w("      default: fpga_demo_prog = FPGA_PROG_HALT;")
+    w("    endcase")
+    w("  end")
+    w("endfunction")
+    w("")
+    w("// program word ROM: addr = {bank[2:0], instruction index[5:0]}")
+    w("function [23:0] fpga_prog_word;")
+    w("  input [2:0] prog;")
+    w("  input [5:0] idx;")
+    w("  begin")
+    w("    case ({prog, idx})")
+    for pid, words in enumerate(images):
+        tag = PROGRAMS[pid][2].lower() if pid < len(PROGRAMS) else "halt"
+        for i, word in enumerate(words):
+            w("      9'h%03x: fpga_prog_word = 24'h%06x;   // %s %02d: %s"
+              % ((pid << 6) | i, word, tag, i, disasm(word)))
+    w("      default: fpga_prog_word = FPGA_HALT_WORD;")
+    w("    endcase")
+    w("  end")
+    w("endfunction")
+    w("")
+    w("`endif // PROTEUS_FPGA_ROM_VH")
+    w("")
+    return "\n".join(out)
+
+
+def emit_mif(images: list[list[int]]) -> str:
+    out: list[str] = []
+    w = out.append
+    w("-- rom_programs.mif -- GENERATED by tools/gen_fpga_rom.py (documentation).")
+    w("-- Flat boot ROM: address = bank*%d + instruction index." % ROM_DEPTH)
+    w("-- Addressed as {prog[2:0], idx[5:0]} by fpga/rom_programs.vh.")
+    w("DEPTH = %d;" % (ROM_BANKS * ROM_DEPTH))
+    w("WIDTH = 24;")
+    w("ADDRESS_RADIX = HEX;")
+    w("DATA_RADIX = HEX;")
+    w("CONTENT BEGIN")
+    for pid, words in enumerate(images):
+        for i, word in enumerate(words):
+            w("  %03X : %06X;" % ((pid << 6) | i, word))
+    w("END;")
+    w("")
+    return "\n".join(out)
+
+
+def main(argv: list[str]) -> int:
+    check = "--check" in argv[1:]
+    images = build_programs()
+    vh_path = FPGA / "rom_programs.vh"
+    mif_path = FPGA / "rom_programs.mif"
+    vh = emit_vh(images)
+    mif = emit_mif(images)
+
+    if check:
+        stale = []
+        for path, text in ((vh_path, vh), (mif_path, mif)):
+            cur = path.read_text() if path.exists() else ""
+            if cur != text:
+                stale.append(str(path.relative_to(ROOT)))
+        if stale:
+            print("gen_fpga_rom: STALE: " + ", ".join(stale))
+            return 1
+        print("gen_fpga_rom: up to date")
+        return 0
+
+    FPGA.mkdir(exist_ok=True)
+    vh_path.write_text(vh)
+    mif_path.write_text(mif)
+
+    total = 0
+    for pid, (fname, eng, _tag) in enumerate(PROGRAMS):
+        words = images[pid]
+        used = sum(1 for wd in words if wd != HALT_WORD)
+        total += used
+        print("  bank %d  %-18s engine %d  %2d/%d words used"
+              % (pid, fname, eng, used, ROM_DEPTH))
+    print("  bank %d  %-18s            %d/%d words used (all HALT)"
+          % (PROG_HALT, "(halt fill)", ROM_DEPTH, ROM_DEPTH))
+    print("gen_fpga_rom: wrote %s (%d words) and %s"
+          % (vh_path.relative_to(ROOT), len(images) * ROM_DEPTH,
+             mif_path.relative_to(ROOT)))
+    print("gen_fpga_rom: %d program words total, %d demos"
+          % (total, len(DEMOS)))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))

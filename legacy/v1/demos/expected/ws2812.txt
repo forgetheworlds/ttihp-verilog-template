@@ -1,0 +1,2 @@
+clk=48000000 source=ws2812.asm period_cycles=60.000 period_fixed=15360 t0h=19 t1h=38 widths=[19, 38] grid=60..60 pixels=11 22 33 00 00 00 ff ff ff
+clk=50000000 source=ws2812_50mhz.asm period_cycles=62.500 period_fixed=16000 t0h=20 t1h=40 widths=[20, 40] grid=62..63 pixels=11 22 33 aa 55 0f 01 02 04

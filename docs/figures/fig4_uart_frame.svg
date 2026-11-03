@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="532" viewBox="0 0 1000 532" role="img" aria-labelledby="t d">
+<title id="t">UART 8N1 frame from the model</title>
+<desc id="d">Measured UIO[0] waveform for byte 0xA5 from firmware/uart_tx.asm, with pacer tick instants, ten 434-cycle bit slots, sample points and a zoom on the two-cycle tick-to-edge latency.</desc>
+<style>
+  :root { --fg:#1f2328; --muted:#57606a; --border:#c9d1d9;
+           --surface:#f6f8fa; --accent:#0969da; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg:#e6edf3; --muted:#8b949e; --border:#30363d;
+             --surface:#161b22; --accent:#58a6ff; }
+  }
+  text { font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; fill:var(--fg,#1f2328); }
+  .m { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  .dim { fill:var(--muted,#57606a); }
+  .acc { fill:var(--accent,#0969da); }
+  .box { fill:none; stroke:var(--border,#c9d1d9); stroke-width:1.2; }
+  .hi  { fill:none; stroke:var(--accent,#0969da); stroke-width:1.4; }
+  .w   { stroke:var(--fg,#1f2328); stroke-width:1.6; fill:none; }
+  .tick{ stroke:var(--accent,#0969da); stroke-width:1; stroke-dasharray:3 3; fill:none; }
+  .grid{ stroke:var(--border,#c9d1d9); stroke-width:1; fill:none; }
+  .arrow { stroke:var(--fg,#1f2328); stroke-width:1.2; fill:none; }
+  .naive { stroke:var(--muted,#57606a); stroke-width:1.4; fill:none; }
+</style>
+<text x="24" y="26" font-size="17" text-anchor="start" class="" font-weight="600">A real UART frame: 8N1, byte 0xA5, straight out of the model</text>
+<text x="24" y="44" font-size="11.5" text-anchor="start" class="dim">firmware/uart_tx.asm (18 words) on engine 0; the pad is sampled every cycle from tools/model.py (trace bench archived at legacy/v1/tools/tests/bench.py).</text>
+<text x="24" y="116" font-size="10.5" text-anchor="start" class="m">UIO[0]</text>
+<text x="24" y="132" font-size="10" text-anchor="start" class="m dim">TX</text>
+<text x="24" y="148" font-size="9" text-anchor="start" class="dim">idle high</text>
+<line x1="88" y1="123" x2="952" y2="123" class="grid" />
+<polyline points="88.0,112.0 89.5,112.0 89.5,134.0 169.3,134.0 169.3,112.0 249.0,112.0 249.0,134.0 328.8,134.0 328.8,112.0 408.6,112.0 408.6,134.0 568.2,134.0 568.2,112.0 647.9,112.0 647.9,134.0 727.7,134.0 727.7,112.0 952.0,112.0" class="w" /><line x1="168.88510638297873" y1="84" x2="168.88510638297873" y2="164" class="tick" />
+<line x1="248.6672340425532" y1="84" x2="248.6672340425532" y2="164" class="tick" />
+<line x1="328.44936170212765" y1="84" x2="328.44936170212765" y2="164" class="tick" />
+<line x1="408.23148936170213" y1="84" x2="408.23148936170213" y2="164" class="tick" />
+<line x1="488.0136170212766" y1="84" x2="488.0136170212766" y2="164" class="tick" />
+<line x1="567.795744680851" y1="84" x2="567.795744680851" y2="164" class="tick" />
+<line x1="647.5778723404255" y1="84" x2="647.5778723404255" y2="164" class="tick" />
+<line x1="727.36" y1="84" x2="727.36" y2="164" class="tick" />
+<line x1="807.1421276595745" y1="84" x2="807.1421276595745" y2="164" class="tick" />
+<line x1="886.924255319149" y1="84" x2="886.924255319149" y2="164" class="tick" />
+<text x="94" y="78" font-size="9.5" text-anchor="start" class="m dim">pacer ticks (PACE completions): 440, 874, 1308 … 4346</text>
+<text x="129.36170212765958" y="184" font-size="10" text-anchor="middle" class="" font-weight="600">START</text>
+<text x="129.36170212765958" y="200" font-size="10" text-anchor="middle" class="m dim">0</text>
+<line x1="129.36170212765958" y1="164" x2="129.36170212765958" y2="172" class="grid" />
+<text x="129.36170212765958" y="218" font-size="7" text-anchor="middle" class="acc">▼</text>
+<text x="209.14382978723404" y="184" font-size="10" text-anchor="middle" class="">d0</text>
+<text x="209.14382978723404" y="200" font-size="10" text-anchor="middle" class="m dim">1</text>
+<line x1="209.14382978723404" y1="164" x2="209.14382978723404" y2="172" class="grid" />
+<text x="209.14382978723404" y="218" font-size="7" text-anchor="middle" class="acc">▼</text>
+<text x="288.9259574468085" y="184" font-size="10" text-anchor="middle" class="">d1</text>
+<text x="288.9259574468085" y="200" font-size="10" text-anchor="middle" class="m dim">0</text>
+<line x1="288.9259574468085" y1="164" x2="288.9259574468085" y2="172" class="grid" />
+<text x="288.9259574468085" y="218" font-size="7" text-anchor="middle" class="acc">▼</text>
+<text x="368.70808510638295" y="184" font-size="10" text-anchor="middle" class="">d2</text>
+<text x="368.70808510638295" y="200" font-size="10" text-anchor="middle" class="m dim">1</text>
+<line x1="368.70808510638295" y1="164" x2="368.70808510638295" y2="172" class="grid" />
+<text x="368.70808510638295" y="218" font-size="7" text-anchor="middle" class="acc">▼</text>
+<text x="448.49021276595744" y="184" font-size="10" text-anchor="middle" class="">d3</text>
+<text x="448.49021276595744" y="200" font-size="10" text-anchor="middle" class="m dim">0</text>
+<line x1="448.49021276595744" y1="164" x2="448.49021276595744" y2="172" class="grid" />
+<text x="448.49021276595744" y="218" font-size="7" text-anchor="middle" class="acc">▼</text>
+<text x="528.2723404255319" y="184" font-size="10" text-anchor="middle" class="">d4</text>
+<text x="528.2723404255319" y="200" font-size="10" text-anchor="middle" class="m dim">0</text>
+<line x1="528.2723404255319" y1="164" x2="528.2723404255319" y2="172" class="grid" />
+<text x="528.2723404255319" y="218" font-size="7" text-anchor="middle" class="acc">▼</text>
+<text x="608.0544680851064" y="184" font-size="10" text-anchor="middle" class="">d5</text>
+<text x="608.0544680851064" y="200" font-size="10" text-anchor="middle" class="m dim">1</text>
+<line x1="608.0544680851064" y1="164" x2="608.0544680851064" y2="172" class="grid" />
+<text x="608.0544680851064" y="218" font-size="7" text-anchor="middle" class="acc">▼</text>
+<text x="687.8365957446808" y="184" font-size="10" text-anchor="middle" class="">d6</text>
+<text x="687.8365957446808" y="200" font-size="10" text-anchor="middle" class="m dim">0</text>
+<line x1="687.8365957446808" y1="164" x2="687.8365957446808" y2="172" class="grid" />
+<text x="687.8365957446808" y="218" font-size="7" text-anchor="middle" class="acc">▼</text>
+<text x="767.6187234042553" y="184" font-size="10" text-anchor="middle" class="">d7</text>
+<text x="767.6187234042553" y="200" font-size="10" text-anchor="middle" class="m dim">1</text>
+<line x1="767.6187234042553" y1="164" x2="767.6187234042553" y2="172" class="grid" />
+<text x="767.6187234042553" y="218" font-size="7" text-anchor="middle" class="acc">▼</text>
+<text x="847.4008510638298" y="184" font-size="10" text-anchor="middle" class="" font-weight="600">STOP</text>
+<text x="847.4008510638298" y="200" font-size="10" text-anchor="middle" class="m dim">1</text>
+<line x1="847.4008510638298" y1="164" x2="847.4008510638298" y2="172" class="grid" />
+<text x="847.4008510638298" y="218" font-size="7" text-anchor="middle" class="acc">▼</text>
+<text x="94" y="184" font-size="9" text-anchor="start" class="dim">bit</text>
+<text x="94" y="242" font-size="10" text-anchor="start" class="m">10 slots × 434 cycles = 4340; period = 111111 / 256 = 434.02734 cycles → 115200.12 baud at 50 MHz</text>
+<text x="94" y="260" font-size="10" text-anchor="start" class="m dim">byte 0xA5 = 1010 0101, sent LSB first (d0…d7 = 1 0 1 0 0 1 0 1); STOP high; decode_uart16 returns 0xA5 with stop = 1</text>
+<text x="94" y="278" font-size="10" text-anchor="start" class="m dim">pad transitions land 2 cycles after the pacer tick: OUTBIT issues on the completion cycle and the pin register updates at the edge.</text>
+<text x="94" y="296" font-size="10" text-anchor="start" class="m dim">the stub PACE is absorbed by the PACERST anchor, so the START slot is a full 434 cycles too — there is no short first bit.</text>
+<rect x="24" y="316" width="952" height="112" rx="4" class="box" />
+<text x="38" y="338" font-size="11" text-anchor="start" class="" font-weight="600">zoom: 420..470 cycles around the d0 boundary</text>
+<polyline points="46.0,372.0 46.0,372.0 46.0,390.0 443.8,390.0 443.8,372.0 950.0,372.0" class="w" /><line x1="407.6" y1="348" x2="407.6" y2="376" class="tick" />
+<text x="407.6" y="342" font-size="9.5" text-anchor="middle" class="m acc">PACE completes, cycle 440</text>
+<text x="449.76" y="386" font-size="9.5" text-anchor="start" class="m dim">pad changes, cycle 442</text>
+<text x="46" y="410" font-size="9.5" text-anchor="start" class="m dim">the 2-cycle gap is constant: one instruction-issue cycle plus one register-write cycle. It shifts the edge; it does not shorten the bit.</text>
+<text x="24" y="456" font-size="10" text-anchor="start" class="m dim">The frame is bit-exact because the grid is anchored at PACERST: next_int += 434 with the fraction carried in next_frac.</text>
+<text x="24" y="474" font-size="10" text-anchor="start" class="m dim">Over 1000 bytes the frame-to-frame interval stays constant to within one cycle (legacy/v1/tools/tests/test_firmware.py::test_uart_tx_1000_bytes_no_accumulated_drift).</text>
+<text x="24" y="498" font-size="9.5" text-anchor="start" class="m dim">Trace source: firmware/uart_tx.asm assembled at depth 32 → tools/model.py, 0xA5 pushed to engine 0 IN_FIFO, 6000 cycles recorded, pad level resolved by Bench.level().</text>
+<text x="24" y="516" font-size="9.5" text-anchor="start" class="m dim">The generating script is in docs/demo.md appendix A, so every coordinate above can be re-derived.</text>
+
+</svg>

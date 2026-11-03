@@ -1,0 +1,1239 @@
+# PROTEUS mutation run
+# when: 2026-11-03T04:08:08
+# command: python3 tools/mutate.py --all
+# benches: engine, top
+# per-run timeout: 180 s
+# src sha256: proteus_defs.vh 5c055b96cd6f3dbd
+# src sha256: proteus_engine.v 17c37d92592fca62
+# src sha256: proteus_host.v e0d19eaf00eb8e99
+# src sha256: tt_um_proteus.v 322d1b385c400903
+
+# baseline (unmutated src/)
+#   engine: SURVIVED in 0.15s
+#   top: SURVIVED in 4.74s
+
+=== MUT A01 [alu] proteus_engine.v:408 -- KILLED
+--- change: "+ {1'b0, b};" -> "- {1'b0, b};"
+--- intent: ADD/ADDI adds -> subtracts
+--- engine: KILLED in 0.21s
+    exit=1 FAIL b_r0: got 0x5 expected 0x15 (pc=12 cycle=84)
+    FAIL b_r2_ff_plus_1: got 0xfe expected 0x0 (pc=12 cycle=84)
+    FAIL b_r4_dec: got 0xfc expected 0xfe (pc=5 cycle=125)
+    FAIL b_r5_mov: got 0xfc expected 0xfe (pc=5 cycle=125)
+    FAIL b_cmp_z: got 0x0 expected 0x1 (pc=5 cycle=125)
+    FAIL b_cmp_c: got 0x1 expected 0x0 (pc=5 cycle=125)
+--- top: KILLED in 5.17s
+    exit=1 FAIL r0 = 0xA5 + 1 (program-computed): got 0xa4 expected 0xa6 (t=187245000)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:884: top_e2e_tb FAILED
+
+=== MUT A02 [alu] proteus_engine.v:418 -- KILLED
+--- change: "- {1'b0, b};" -> "+ {1'b0, b};"
+--- intent: SUB/SUBI/CMP subtracts -> adds
+--- engine: KILLED in 0.15s
+    exit=1 FAIL b_r0: got 0x1b expected 0x15 (pc=12 cycle=84)
+    FAIL b_r4_dec: got 0x0 expected 0xfe (pc=5 cycle=125)
+    FAIL b_r5_mov: got 0x0 expected 0xfe (pc=5 cycle=125)
+    FAIL b_cmp_z: got 0x0 expected 0x1 (pc=5 cycle=125)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 4 check(s) failed ====
+--- top: SURVIVED in 4.80s
+
+=== MUT A03 [alu] proteus_engine.v:419 -- KILLED
+--- change: 'co = t[8];' -> 'co = ~t[8];'
+--- intent: subtract borrow flag inverted
+--- engine: KILLED in 0.25s
+    exit=1 FAIL b_cmp_c: got 0x1 expected 0x0 (pc=5 cycle=125)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 6.54s
+
+=== MUT A04 [alu] proteus_engine.v:413 -- SURVIVED
+--- change: "+ {8'd0, cin};" -> ';'
+--- intent: ADC/ADCI drops the carry-in
+--- engine: SURVIVED in 0.27s
+--- top: SURVIVED in 5.95s
+
+=== MUT A05 [alu] proteus_engine.v:432 -- SURVIVED
+--- change: "4'd8 - shn" -> "shn - 4'd1"
+--- intent: SHL carry uses the SHR carry formula
+--- engine: SURVIVED in 0.16s
+--- top: SURVIVED in 4.71s
+
+=== MUT A06 [alu] proteus_engine.v:446 -- SURVIVED
+--- change: "(a[7] ? (8'hFF << (4'd8 - shn)) : 8'h00)" -> "8'h00"
+--- intent: ASR loses the sign fill (becomes SHR)
+--- engine: SURVIVED in 0.12s
+--- top: SURVIVED in 4.50s
+
+=== MUT A07 [alu] proteus_engine.v:456 -- SURVIVED
+--- change: 'co = r[0];' -> 'co = r[7];'
+--- intent: ROL carry taken from the wrong end
+--- engine: SURVIVED in 0.13s
+--- top: SURVIVED in 4.76s
+
+=== MUT A08 [alu] proteus_engine.v:465 -- SURVIVED
+--- change: 'co = r[7];' -> 'co = r[0];'
+--- intent: ROR carry taken from the wrong end
+--- engine: SURVIVED in 0.16s
+--- top: SURVIVED in 4.85s
+
+=== MUT A09 [alu] proteus_engine.v:651 -- KILLED
+--- change: "alu_f(OP_ADD, regs[f_rd], 8'h01, c_r)" -> "alu_f(OP_SUB, regs[f_rd], 8'h01, c_r)"
+--- intent: INC decrements
+--- engine: KILLED in 0.22s
+    exit=1 FAIL b_r4_dec: got 0xfc expected 0xfe (pc=5 cycle=125)
+    FAIL b_r5_mov: got 0xfc expected 0xfe (pc=5 cycle=125)
+    FAIL b_cmp_z: got 0x0 expected 0x1 (pc=5 cycle=125)
+    FAIL b_cmp_c: got 0x1 expected 0x0 (pc=5 cycle=125)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 4 check(s) failed ====
+--- top: SURVIVED in 4.97s
+
+=== MUT A10 [alu] proteus_engine.v:665 -- KILLED
+--- change: "alu_f(OP_SUB, regs[f_rd], 8'h01, c_r)" -> "alu_f(OP_ADD, regs[f_rd], 8'h01, c_r)"
+--- intent: DEC increments
+--- engine: KILLED in 0.18s
+    exit=1 FAIL b_r4_dec: got 0x0 expected 0xfe (pc=5 cycle=125)
+    FAIL b_r5_mov: got 0x0 expected 0xfe (pc=5 cycle=125)
+    FAIL b_cmp_z: got 0x0 expected 0x1 (pc=5 cycle=125)
+    FAIL b_cmp_c: got 0x1 expected 0x0 (pc=5 cycle=125)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 4 check(s) failed ====
+--- top: SURVIVED in 4.76s
+
+=== MUT A11 [alu] proteus_engine.v:637 -- SURVIVED
+--- change: "alu_f(OP_SUB, 8'h00, regs[f_rd], c_r)" -> "alu_f(OP_ADD, 8'h00, regs[f_rd], c_r)"
+--- intent: NEG becomes a no-op (0-x -> 0+x)
+--- engine: SURVIVED in 0.14s
+--- top: SURVIVED in 4.83s
+
+=== MUT A12 [alu] proteus_engine.v:405 -- SURVIVED
+--- change: "{1'b0, b[2:0]}" -> "{1'b0, b[3:1]}"
+--- intent: shift/rotate count read one bit too high
+--- engine: SURVIVED in 0.22s
+--- top: SURVIVED in 5.04s
+
+=== MUT P01 [pacer] proteus_engine.v:834 -- KILLED
+--- change: 'if (cycle >= next_int_r)' -> 'if (cycle > next_int_r)'
+--- intent: PACE deadline compare off by one
+--- engine: SURVIVED in 0.22s
+--- top: KILLED in 4.81s
+    exit=1 FAIL first toggle interval = PERIOD-1: got 0x10 expected 0x0f (t=108107000)
+    FAIL st interval past 2^24 = period-1: got 0x00 expected 0xff (t=531107000)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:884: top_e2e_tb FAILED
+
+=== MUT P02 [pacer] proteus_engine.v:838 -- KILLED
+--- change: "{31'd0, n_next_carry}" -> "{31'd0, 1'b0}"
+--- intent: pacer fractional carry dropped from the deadline
+--- engine: KILLED in 0.18s
+    exit=1 FAIL f2_mean: got -20 expected -1..1 (pc=6 cycle=2939)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 5.34s
+
+=== MUT P03 [pacer] proteus_engine.v:845 -- KILLED
+--- change: 'n_next_int  = cycle;' -> "n_next_int  = cycle + 32'd1;"
+--- intent: PACERST arms the deadline one cycle late
+--- engine: SURVIVED in 0.14s
+--- top: KILLED in 5.25s
+    exit=1 FAIL first toggle interval = PERIOD-1: got 0x10 expected 0x0f (t=108107000)
+    FAIL st interval past 2^24 = period-1: got 0x00 expected 0xff (t=531107000)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:884: top_e2e_tb FAILED
+
+=== MUT P04 [waitc] proteus_engine.v:818 -- KILLED
+--- change: "({21'd0, waitc_n} - 32'd1)" -> "({21'd0, waitc_n})"
+--- intent: WAITC n occupies n+1 cycles
+--- engine: KILLED in 0.14s
+    exit=1 FAIL e_waitc_cycles: got 0x2 expected 0x1 (pc=1 cycle=285)
+    FAIL e_waitc_cycles: got 0x6 expected 0x5 (pc=1 cycle=326)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 2 check(s) failed ====
+--- top: SURVIVED in 6.87s
+
+=== MUT P05 [waitc] proteus_engine.v:821 -- KILLED
+--- change: "wait_left_r - 32'd1" -> "wait_left_r - 32'd2"
+--- intent: WAITC stall counter decrements by two
+--- engine: KILLED in 0.27s
+    exit=1 FAIL e_waitc_cycles: got 0x4 expected 0x5 (pc=1 cycle=323)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 6.16s
+
+=== MUT P06 [timeout] proteus_engine.v:759 -- KILLED
+--- change: "if (wait_left_r <= 32'd1)" -> "if (wait_left_r < 32'd1)"
+--- intent: WAITP timeout fires one cycle late
+--- engine: KILLED in 0.24s
+    exit=1 FAIL e2_timeout_cycles: got 0x102 expected 0x101 (pc=1 cycle=618)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 5.01s
+
+=== MUT P07 [timeout] proteus_engine.v:756 -- KILLED
+--- change: "{16'h0000, timeout_r, 8'h00}" -> "{17'h0000, timeout_r, 7'h00}"
+--- intent: WAITP timeout unit 256 -> 128 cycles
+--- engine: KILLED in 0.23s
+    exit=1 FAIL e2_timeout_cycles: got 0x81 expected 0x101 (pc=1 cycle=489)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 5.12s
+
+=== MUT P08 [waitp] proteus_engine.v:750 -- KILLED
+--- change: "if (f_rs[2] ? (tmp_v == f_imm) : (tmp_v == 8'h00))" -> "if (f_rs[2] ? (tmp_v == 8'h00) : (tmp_v == f_imm))"
+--- intent: WAITP level polarity swapped
+--- engine: KILLED in 0.16s
+    exit=1 FAIL d_waitp_still_stalled: got 0x3 expected 0x2 (pc=3 cycle=209)
+    FAIL d_waitp_ss_stall_data: got 0x0 expected 0x1 (pc=3 cycle=209)
+    FAIL d_waitp_still_stalled: got 0x3 expected 0x2 (pc=3 cycle=210)
+    FAIL d_waitp_ss_stall_mask: got 0x0 expected 0x3 (pc=3 cycle=210)
+    FAIL d_waitp_ss_stall_data: got 0x0 expected 0x1 (pc=3 cycle=210)
+    FAIL d_waitp_ss_stall_oe: got 0x0 expected 0x3 (pc=3 cycle=210)
+--- top: SURVIVED in 4.85s
+
+=== MUT C01 [control] proteus_engine.v:776 -- SURVIVED
+--- change: "3'd1: take = z_r;" -> "3'd1: take = ~z_r;"
+--- intent: JZ takes the opposite condition
+--- engine: SURVIVED in 0.15s
+--- top: SURVIVED in 4.96s
+
+=== MUT C02 [control] proteus_engine.v:778 -- SURVIVED
+--- change: "3'd3: take = c_r;" -> "3'd3: take = ~c_r;"
+--- intent: JC takes the opposite condition
+--- engine: SURVIVED in 0.21s
+--- top: SURVIVED in 4.91s
+
+=== MUT C03 [control] proteus_engine.v:785 -- KILLED
+--- change: '& LAST_PC;' -> '& (LAST_PC - 1);'
+--- intent: jump target mask off by one
+--- engine: KILLED in 0.16s
+    exit=1 FAIL f1_interval: got 0x3 expected 0x10 (pc=4 cycle=683)
+    FAIL f1_interval: got 0x3 expected 0x10 (pc=4 cycle=683)
+    FAIL f1_interval: got 0x3 expected 0x10 (pc=4 cycle=683)
+    FAIL f1_interval: got 0x3 expected 0x10 (pc=4 cycle=683)
+    FAIL f1_interval: got 0x3 expected 0x10 (pc=4 cycle=683)
+    FAIL f1_interval: got 0x3 expected 0x10 (pc=4 cycle=683)
+--- top: KILLED in 5.43s
+    exit=1 FAIL first toggle interval = PERIOD-1: got 0x04 expected 0x0f (t=108107000)
+    FAIL toggle interval 1 = 4, expected 16 (cycles 10396..10400)
+    FAIL toggle interval 2 = 4, expected 16 (cycles 10400..10404)
+    FAIL toggle interval 3 = 4, expected 16 (cycles 10404..10408)
+    FAIL toggle interval 4 = 4, expected 16 (cycles 10408..10412)
+    FAIL st interval past 2^24 = period-1: got 0x04 expected 0xff (t=531107000)
+
+=== MUT C04 [control] proteus_engine.v:159 -- KILLED
+--- change: 'ADDR_ONE = 1;' -> 'ADDR_ONE = 2;'
+--- intent: PC increments by two
+--- engine: KILLED in 180.16s
+    simulation exceeded the 180s bound
+--- top: KILLED in 8.12s
+    exit=1 FAIL UIO0 toggled only 0 times in 400 cycles (expected >= 6)
+    FAIL first toggle interval = PERIOD-1: got 0xxx expected 0x0f (t=108107000)
+    FAIL eng0 PC sample 0x00 outside loop body 5..7
+    FAIL eng0 PC sample 0x00 outside loop body 5..7
+    FAIL ng0 did not halt within 20 polls (t=236085000)
+    FAIL r0 = 0xA5 + 1 (program-computed): got 0x00 expected 0xa6 (t=240825000)
+
+=== MUT C05 [control] proteus_engine.v:987 -- SURVIVED
+--- change: '(pc_r == LAST_PC)' -> "1'b0"
+--- intent: PC wrap test removed (rely on width wrap)
+--- engine: SURVIVED in 0.12s
+--- top: SURVIVED in 4.43s
+
+=== MUT C06 [control] proteus_engine.v:365 -- KILLED
+--- change: '(f_op == OP_HALT)' -> '(f_op == OP_NOP)'
+--- intent: halt_exec decodes NOP, so HALT does not retire RUN
+--- engine: SURVIVED in 0.12s
+--- top: KILLED in 6.59s
+    exit=1 FAIL TUS run=0 after HALT (halt_exec): got 1 expected 0 (t=192885000)
+    FAIL bit0 retired by HALT instruction: got 1 expected 0 (t=195705000)
+    FAIL eave the barrier within 40 polls (t=516025000)
+    FAIL eave the barrier within 40 polls (t=628825000)
+    FAIL barrier pins never asserted (uio0=-1 uio1=-1)
+    FAIL h barrier pins driven afterwards: got 0x00 expected 0x03 (t=628857000)
+
+=== MUT C07 [control] proteus_engine.v:285 -- KILLED
+--- change: 'run & ~run_q' -> 'run & run_q'
+--- intent: run-rising restart never fires (stale PC executes)
+--- engine: KILLED in 0.20s
+    exit=1 FAIL b_r0: got 0x0 expected 0x15 (pc=0 cycle=84)
+    FAIL b_r1: got 0x0 expected 0x3 (pc=0 cycle=84)
+    FAIL b_r3_not: got 0x0 expected 0xfd (pc=0 cycle=84)
+    FAIL b_flag_n: got 0x0 expected 0x1 (pc=0 cycle=84)
+    FAIL b_halted: got 0x0 expected 0x1 (pc=0 cycle=84)
+    FAIL b_r4_dec: got 0x0 expected 0xfe (pc=0 cycle=125)
+--- top: KILLED in 7.85s
+    exit=1 FAIL UIO0 toggled only 0 times in 400 cycles (expected >= 6)
+    FAIL first toggle interval = PERIOD-1: got 0xxx expected 0x0f (t=108107000)
+    FAIL eng0 PC sample 0x00 outside loop body 5..7
+    FAIL eng0 PC sample 0x00 outside loop body 5..7
+    FAIL ng0 did not halt within 20 polls (t=236085000)
+    FAIL r0 = 0xA5 + 1 (program-computed): got 0xa5 expected 0xa6 (t=240825000)
+
+=== MUT C08 [control] proteus_engine.v:286 -- SURVIVED
+--- change: '& prog_ready_r & ~restart' -> '& ~restart'
+--- intent: engine executes before the program fill is ready
+--- engine: SURVIVED in 0.16s
+--- top: SURVIVED in 4.82s
+
+=== MUT C09 [control] proteus_engine.v:1094 -- KILLED
+--- change: 'if (fill_cnt == LAST_PC)' -> 'if (fill_cnt == LAST_PC - 1)'
+--- intent: prog_ready asserted one word early
+--- engine: KILLED in 0.18s
+    exit=1 FAIL a_prog_ready_during_fill: got 0x1 expected 0x0 (pc=0 cycle=33)
+    FAIL a_fetched_word31_is_halt: got 0xxxxxxx expected 0x700000 (pc=0 cycle=34)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 2 check(s) failed ====
+--- top: SURVIVED in 5.11s
+
+=== MUT C10 [control] proteus_engine.v:254 -- KILLED
+--- change: 'host_prog_addr <= LAST_ADDR' -> 'host_prog_addr < LAST_ADDR'
+--- intent: last program word is dropped / reads 0 (off-by-one)
+--- engine: KILLED in 0.18s
+    exit=1 FAIL a_fetched_word31_is_halt: got 0x0 expected 0x700000 (pc=0 cycle=34)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 4.51s
+
+=== MUT F01 [fifo] proteus_engine.v:301 -- KILLED
+--- change: 'in_full_w   = (in_cnt  == FIFO_FULL)' -> 'in_full_w   = (in_cnt  == FIFO_FULL - 1)'
+--- intent: input-FIFO full comparison flipped (full one early)
+--- engine: KILLED in 0.17s
+    exit=1 FAIL y_in_full: got 0x0 expected 0x1 (pc=0 cycle=3237)
+    FAIL y_in_still_full: got 0x0 expected 0x1 (pc=0 cycle=3238)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 2 check(s) failed ====
+--- top: SURVIVED in 4.54s
+
+=== MUT F02 [fifo] proteus_engine.v:853 -- KILLED
+--- change: 'if (out_cnt < FIFO_FULL)' -> 'if (out_cnt <= FIFO_FULL)'
+--- intent: PUSH accepted when the output FIFO is full
+--- engine: KILLED in 0.17s
+    exit=1 FAIL y_out_full: got 0x0 expected 0x1 (pc=10 cycle=3359)
+    FAIL y_out_blocked_halted: got 0x1 expected 0x0 (pc=10 cycle=3359)
+    FAIL y_out_head: got 0x4 expected 0x0 (pc=10 cycle=3359)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 3 check(s) failed ====
+--- top: SURVIVED in 4.90s
+
+=== MUT F03 [fifo] proteus_engine.v:1184 -- KILLED
+--- change: '(host_in_push && (in_cnt < FIFO_FULL))' -> '(host_in_push && (in_cnt <= FIFO_FULL))'
+--- intent: host push accepted when the input FIFO is full
+--- engine: KILLED in 0.14s
+    exit=1 FAIL y_in_still_full: got 0x0 expected 0x1 (pc=0 cycle=3238)
+    FAIL y_in_drained: got 0x0 expected 0x1 (pc=4 cycle=3280)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 2 check(s) failed ====
+--- top: SURVIVED in 5.60s
+
+=== MUT F04 [fifo] proteus_engine.v:880 -- SURVIVED
+--- change: "n_nf = 1'b1;" -> "n_nf = 1'b0;"
+--- intent: PUSHN on a full FIFO does not flag nf
+--- engine: SURVIVED in 0.17s
+--- top: SURVIVED in 6.23s
+
+=== MUT G01 [pins] proteus_engine.v:698 -- KILLED
+--- change: "8'hFF, 1'b1)" -> "8'h00, 1'b1)"
+--- intent: SETP drives 0 instead of 1 (equals CLRP)
+--- engine: KILLED in 0.23s
+    exit=1 FAIL c_setp_uo_data: got 0x0 expected 0xf (pc=1 cycle=161)
+    FAIL c_setp_wo_data: got 0x0 expected 0x1 (pc=5 cycle=165)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 2 check(s) failed ====
+--- top: KILLED in 5.20s
+    exit=1 FAIL STATUS: 3 engine-generated edges: got 0x00 expected 0x03 (t=273135000)
+    FAIL CAP_INFO level=1 (rising edge 1): got 0 expected 1 (t=275955000)
+    FAIL CAP_TS edge 1 is zero (t=280695000)
+    FAIL capture timestamps not increasing: 0 then 0
+    FAIL CAP_INFO level=1 (rising edge 3): got 0 expected 1 (t=296715000)
+    FAIL capture timestamps not increasing: 0 then 0
+
+=== MUT G02 [pins] proteus_engine.v:704 -- KILLED
+--- change: "~tmp_v, 1'b1)" -> "tmp_v, 1'b1)"
+--- intent: TOGP does not invert the pin snapshot
+--- engine: KILLED in 0.22s
+    exit=1 FAIL c_togp_uo_data: got 0xf expected 0xf0 (pc=3 cycle=163)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 1 check(s) failed ====
+--- top: KILLED in 4.92s
+    exit=1 FAIL UIO0 toggled only 0 times in 400 cycles (expected >= 6)
+    FAIL first toggle interval = PERIOD-1: got 0xxx expected 0x0f (t=108107000)
+    FAIL pacer produced only 0 completions past 2^24
+    FAIL st interval past 2^24 = period-1: got 0xxx expected 0xff (t=531107000)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:884: top_e2e_tb FAILED
+
+=== MUT G03 [pins] proteus_engine.v:722 -- KILLED
+--- change: 'p_oe_val  = (p_oe_val & ~f_imm) | f_imm;' -> 'p_oe_val  = p_oe_val & ~f_imm;'
+--- intent: DIRS acts as DIRC (clears instead of sets)
+--- engine: KILLED in 0.20s
+    exit=1 FAIL c_dirs_oe_data: got 0x0 expected 0x4 (pc=7 cycle=167)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 5.54s
+
+=== MUT G04 [pins] proteus_engine.v:729 -- KILLED
+--- change: 'p_oe_val  = p_oe_val & ~f_imm;' -> 'p_oe_val  = (p_oe_val & ~f_imm) | f_imm;'
+--- intent: DIRC acts as DIRS (sets instead of clears)
+--- engine: KILLED in 0.19s
+    exit=1 FAIL c_dirc_oe_data: got 0x2 expected 0x0 (pc=6 cycle=166)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 4.91s
+
+=== MUT G05 [pins] proteus_engine.v:736 -- KILLED
+--- change: 'p_od_val  = (p_od_val & ~f_imm) | f_imm;' -> 'p_od_val  = p_od_val & ~f_imm;'
+--- intent: ODSET clears the open-drain bit instead of setting it
+--- engine: KILLED in 0.20s
+    exit=1 FAIL c_odset_od_data: got 0x0 expected 0x8 (pc=8 cycle=168)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:948: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 4.88s
+
+=== MUT G06 [pins] proteus_engine.v:292 -- KILLED
+--- change: "{1'b0, ss_wm1_r} + 3'd1" -> "{1'b0, ss_wm1_r} + 3'd2"
+--- intent: side-set window one pin too wide
+--- engine: KILLED in 0.15s
+    exit=1 FAIL d_nop_ss_wo_mask: got 0x7 expected 0x3 (pc=1 cycle=207)
+    FAIL d_nop_ss_oe_mask: got 0x7 expected 0x3 (pc=1 cycle=207)
+    FAIL d_nop_ss_oe_data: got 0x7 expected 0x3 (pc=1 cycle=207)
+    FAIL d_waitp_ss_stall_mask: got 0x7 expected 0x3 (pc=2 cycle=208)
+    FAIL d_waitp_ss_stall_oe: got 0x7 expected 0x3 (pc=2 cycle=208)
+    FAIL d_waitp_ss_stall_mask: got 0x7 expected 0x3 (pc=2 cycle=209)
+--- top: SURVIVED in 4.64s
+
+=== MUT G07 [pins] proteus_engine.v:681 -- SURVIVED
+--- change: 'if (bp_inv_r) tmp_v[0] = ~tmp_v[0];' -> "if (1'b0) tmp_v[0] = ~tmp_v[0];"
+--- intent: OUTBIT ignores the configured invert
+--- engine: SURVIVED in 0.14s
+--- top: SURVIVED in 4.57s
+
+=== MUT H01 [host] proteus_host.v:245 -- SURVIVED
+--- change: 'reg_addr  <= ptr;' -> 'reg_addr  <= addr;'
+--- intent: WRITE_INC writes to the address pointer instead of the data pointer
+--- engine: SURVIVED in 0.13s
+--- top: SURVIVED in 4.40s
+
+=== MUT H02 [host] proteus_host.v:247 -- SURVIVED
+--- change: "ptr       <= ptr + 16'd1;" -> "ptr       <= ptr + 16'd2;"
+--- intent: WRITE_INC auto-increment skips a register
+--- engine: SURVIVED in 0.15s
+--- top: SURVIVED in 4.51s
+
+=== MUT H03 [host] proteus_host.v:127 -- KILLED
+--- change: '{shreg, mosi_d2}' -> '{mosi_d2, shreg}'
+--- intent: SPI receive shift register takes bits LSB-first
+--- engine: SURVIVED in 0.16s
+--- top: KILLED in 7.89s
+    exit=1 FAIL ID0 = 'P': got 0x00 expected 0x50 (t=4935000)
+    FAIL ID1 = 'R': got 0x00 expected 0x52 (t=4935000)
+    FAIL VERSION: got 0x00 expected 0x01 (t=4935000)
+    FAIL PING response: got 0x00 expected 0x50 (t=6475000)
+    FAIL prog word0 byte0: got 0x00 expected 0x34 (t=19675000)
+    FAIL prog word0 byte1: got 0x00 expected 0x12 (t=19675000)
+
+=== MUT H04 [host] proteus_host.v:208 -- SURVIVED
+--- change: 'tx_byte[6 - bit_cnt]' -> 'tx_byte[7 - bit_cnt]'
+--- intent: MISO shifts out the wrong bit of the byte
+--- engine: SURVIVED in 0.12s
+--- top: SURVIVED in 4.81s
+
+=== MUT H05 [host] proteus_host.v:199 -- SURVIVED
+--- change: "reg_raddr        <= ptr + 16'd1;" -> 'reg_raddr        <= ptr;'
+--- intent: READ_INC re-reads the same address (early fetch pointer)
+--- engine: SURVIVED in 0.22s
+--- top: SURVIVED in 4.72s
+
+=== MUT H06 [host] proteus_host.v:266 -- KILLED
+--- change: 'addr  <= {byte_in, addr[7:0]};' -> 'addr  <= {addr[7:0], byte_in};'
+--- intent: WRITE_ADDR high address byte swapped into the low half
+--- engine: SURVIVED in 0.18s
+--- top: KILLED in 5.13s
+    exit=1 FAIL prog word0 byte0: got 0x00 expected 0x34 (t=19675000)
+    FAIL prog word0 byte2: got 0x70 expected 0xaa (t=19675000)
+    FAIL eng0 prog_mem[0] assembled: got 0x701200 expected 0xaa1234 (t=19675000)
+    FAIL byte0 untouched by byte1 rewrite: got 0x00 expected 0x34 (t=27235000)
+    FAIL byte2 untouched by byte1 rewrite: got 0x70 expected 0xaa (t=27235000)
+    FAIL eng0 prog_mem[0] merged: got 0x705600 expected 0xaa5634 (t=27235000)
+
+=== MUT T01 [top] tt_um_proteus.v:729 -- SURVIVED
+--- change: 'oe_q & (~(od_q & uio_q))' -> 'oe_q & (~(od_q & ~uio_q))'
+--- intent: open-drain release inverted (drives high instead of releasing)
+--- engine: SURVIVED in 0.15s
+--- top: SURVIVED in 4.89s
+
+=== MUT T02 [top] tt_um_proteus.v:356 -- SURVIVED
+--- change: '(od_low & uio_in)' -> '(od_low & ~uio_in)'
+--- intent: open-drain collision condition inverted
+--- engine: SURVIVED in 0.14s
+--- top: SURVIVED in 4.49s
+
+=== MUT T03 [top] tt_um_proteus.v:507 -- KILLED
+--- change: '((arr_b0 & run_mask) == run_mask)' -> "((arr_b0 & run_mask) != 4'd0)"
+--- intent: barrier releases as soon as any engine arrives
+--- engine: SURVIVED in 0.13s
+--- top: KILLED in 4.53s
+    exit=1 FAIL barrier released engines in different cycles: uio0 at 40299, uio1 at 40301 (2 cycles apart)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:884: top_e2e_tb FAILED
+
+=== MUT T04 [top] tt_um_proteus.v:502 -- KILLED
+--- change: 'bar_arr0 | cur_b0' -> 'bar_arr0 & cur_b0'
+--- intent: barrier arrivals are not sticky
+--- engine: SURVIVED in 0.20s
+--- top: KILLED in 6.50s
+    exit=1 FAIL eave the barrier within 40 polls (t=516025000)
+    FAIL eave the barrier within 40 polls (t=628825000)
+    FAIL barrier pins never asserted (uio0=-1 uio1=-1)
+    FAIL h barrier pins driven afterwards: got 0x00 expected 0x03 (t=628857000)
+    FAIL  retired by HALT on both engines: got 0x03 expected 0x00 (t=631677000)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:884: top_e2e_tb FAILED
+
+=== MUT T05 [top] tt_um_proteus.v:553 -- KILLED
+--- change: 'run_reg <= run_reg & (~halt_mask);' -> 'run_reg <= run_reg;'
+--- intent: halt_mask dropped: HALT no longer retires RUN
+--- engine: SURVIVED in 0.14s
+--- top: KILLED in 4.81s
+    exit=1 FAIL TUS run=0 after HALT (halt_exec): got 1 expected 0 (t=192885000)
+    FAIL bit0 retired by HALT instruction: got 1 expected 0 (t=195705000)
+    FAIL  retired by HALT on both engines: got 0x03 expected 0x00 (t=411717000)
+    FAIL  did not halt after HOST_DISABLE (t=719885000)
+    FAIL abric-owned: engine write landed: got 0x00 expected 0x03 (t=719915000)
+    FAIL ngine write landed after disable: got 0 expected 1 (t=719915000)
+
+=== MUT T06 [top] tt_um_proteus.v:316 -- KILLED
+--- change: '~uo_m_all[mi*8 +: 8]) | (uo_d_all[mi*8 +: 8] & uo_m_all[mi*8 +: 8]' -> '~wo_m_all[mi*8 +: 8]) | (uo_d_all[mi*8 +: 8] & wo_m_all[mi*8 +: 8]'
+--- intent: uo_out merge uses the uio write mask
+--- engine: SURVIVED in 0.14s
+--- top: KILLED in 4.75s
+    exit=1 FAIL  did not halt after HOST_DISABLE (t=719885000)
+    FAIL abric-owned: engine write landed: got 0x00 expected 0x03 (t=719915000)
+    FAIL  the fabric value inside a frame: got 0 expected 1 (t=721295000)
+    FAIL uo_out[0] still tracks MISO after HOST_DISABLE
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:884: top_e2e_tb FAILED
+
+=== MUT T07 [capture] tt_um_proteus.v:478 -- SURVIVED
+--- change: 'cap_entry[36:5]' -> "{1'b0, cap_entry[35:5]}"
+--- intent: capture timestamp loses its top bit
+--- engine: SURVIVED in 0.12s
+--- top: SURVIVED in 4.59s
+
+=== MUT T08 [capture] tt_um_proteus.v:468 -- KILLED
+--- change: 'cap_wp + cap_ok[CAP_AW-1:0]' -> "cap_wp + 1'b1"
+--- intent: capture write pointer advances once per cycle, not once per event
+--- engine: SURVIVED in 0.16s
+--- top: KILLED in 4.54s
+    exit=1 FAIL capture timestamps not increasing: 26734 then 26729
+    FAIL capture timestamps not increasing: 26729 then 26724
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:884: top_e2e_tb FAILED
+
+=== MUT T09 [top] tt_um_proteus.v:627 -- KILLED
+--- change: "(pm_byte != 2'd3)" -> "(pm_byte != 2'd2)"
+--- intent: program byte lane 2 is dropped
+--- engine: SURVIVED in 0.17s
+--- top: KILLED in 4.80s
+    exit=1 FAIL prog word0 byte2: got 0x70 expected 0xaa (t=19675000)
+    FAIL eng0 prog_mem[0] assembled: got 0x701234 expected 0xaa1234 (t=19675000)
+    FAIL byte2 untouched by byte1 rewrite: got 0x70 expected 0xaa (t=27235000)
+    FAIL eng0 prog_mem[0] merged: got 0x705634 expected 0xaa5634 (t=27235000)
+    FAIL i=32 write did not alias word0: got 0x705634 expected 0xaa5634 (t=30055000)
+    FAIL prog readback eng0 word 0 lane 2: got 0x70 expected 0x9a
+
+=== MUT T10 [top] tt_um_proteus.v:626 -- KILLED
+--- change: "* 4'd3 +" -> "* 4'd4 +"
+--- intent: program byte-lane map uses a 4-lane stride (engine lane swap)
+--- engine: SURVIVED in 0.18s
+--- top: KILLED in 4.61s
+    exit=1 FAIL prog readback eng1 word 0 lane 2: got 0x00 expected 0x72
+    FAIL prog readback eng1 word 1 lane 2: got 0x00 expected 0x72
+    FAIL prog readback eng1 word 2 lane 2: got 0x00 expected 0x72
+    FAIL prog readback eng1 word 3 lane 2: got 0x00 expected 0x8e
+    FAIL prog readback eng1 word 4 lane 0: got 0x00 expected 0x10
+    FAIL prog readback eng1 word 4 lane 2: got 0x10 expected 0x44
+
+=== SUMMARY
+id,file,line,cat,engine,top,verdict
+A01,proteus_engine.v,408,alu,KILLED,KILLED,KILLED
+A02,proteus_engine.v,418,alu,KILLED,SURVIVED,KILLED
+A03,proteus_engine.v,419,alu,KILLED,SURVIVED,KILLED
+A04,proteus_engine.v,413,alu,SURVIVED,SURVIVED,SURVIVED
+A05,proteus_engine.v,432,alu,SURVIVED,SURVIVED,SURVIVED
+A06,proteus_engine.v,446,alu,SURVIVED,SURVIVED,SURVIVED
+A07,proteus_engine.v,456,alu,SURVIVED,SURVIVED,SURVIVED
+A08,proteus_engine.v,465,alu,SURVIVED,SURVIVED,SURVIVED
+A09,proteus_engine.v,651,alu,KILLED,SURVIVED,KILLED
+A10,proteus_engine.v,665,alu,KILLED,SURVIVED,KILLED
+A11,proteus_engine.v,637,alu,SURVIVED,SURVIVED,SURVIVED
+A12,proteus_engine.v,405,alu,SURVIVED,SURVIVED,SURVIVED
+P01,proteus_engine.v,834,pacer,SURVIVED,KILLED,KILLED
+P02,proteus_engine.v,838,pacer,KILLED,SURVIVED,KILLED
+P03,proteus_engine.v,845,pacer,SURVIVED,KILLED,KILLED
+P04,proteus_engine.v,818,waitc,KILLED,SURVIVED,KILLED
+P05,proteus_engine.v,821,waitc,KILLED,SURVIVED,KILLED
+P06,proteus_engine.v,759,timeout,KILLED,SURVIVED,KILLED
+P07,proteus_engine.v,756,timeout,KILLED,SURVIVED,KILLED
+P08,proteus_engine.v,750,waitp,KILLED,SURVIVED,KILLED
+C01,proteus_engine.v,776,control,SURVIVED,SURVIVED,SURVIVED
+C02,proteus_engine.v,778,control,SURVIVED,SURVIVED,SURVIVED
+C03,proteus_engine.v,785,control,KILLED,KILLED,KILLED
+C04,proteus_engine.v,159,control,KILLED,KILLED,KILLED
+C05,proteus_engine.v,987,control,SURVIVED,SURVIVED,SURVIVED
+C06,proteus_engine.v,365,control,SURVIVED,KILLED,KILLED
+C07,proteus_engine.v,285,control,KILLED,KILLED,KILLED
+C08,proteus_engine.v,286,control,SURVIVED,SURVIVED,SURVIVED
+C09,proteus_engine.v,1094,control,KILLED,SURVIVED,KILLED
+C10,proteus_engine.v,254,control,KILLED,SURVIVED,KILLED
+F01,proteus_engine.v,301,fifo,KILLED,SURVIVED,KILLED
+F02,proteus_engine.v,853,fifo,KILLED,SURVIVED,KILLED
+F03,proteus_engine.v,1184,fifo,KILLED,SURVIVED,KILLED
+F04,proteus_engine.v,880,fifo,SURVIVED,SURVIVED,SURVIVED
+G01,proteus_engine.v,698,pins,KILLED,KILLED,KILLED
+G02,proteus_engine.v,704,pins,KILLED,KILLED,KILLED
+G03,proteus_engine.v,722,pins,KILLED,SURVIVED,KILLED
+G04,proteus_engine.v,729,pins,KILLED,SURVIVED,KILLED
+G05,proteus_engine.v,736,pins,KILLED,SURVIVED,KILLED
+G06,proteus_engine.v,292,pins,KILLED,SURVIVED,KILLED
+G07,proteus_engine.v,681,pins,SURVIVED,SURVIVED,SURVIVED
+H01,proteus_host.v,245,host,SURVIVED,SURVIVED,SURVIVED
+H02,proteus_host.v,247,host,SURVIVED,SURVIVED,SURVIVED
+H03,proteus_host.v,127,host,SURVIVED,KILLED,KILLED
+H04,proteus_host.v,208,host,SURVIVED,SURVIVED,SURVIVED
+H05,proteus_host.v,199,host,SURVIVED,SURVIVED,SURVIVED
+H06,proteus_host.v,266,host,SURVIVED,KILLED,KILLED
+T01,tt_um_proteus.v,729,top,SURVIVED,SURVIVED,SURVIVED
+T02,tt_um_proteus.v,356,top,SURVIVED,SURVIVED,SURVIVED
+T03,tt_um_proteus.v,507,top,SURVIVED,KILLED,KILLED
+T04,tt_um_proteus.v,502,top,SURVIVED,KILLED,KILLED
+T05,tt_um_proteus.v,553,top,SURVIVED,KILLED,KILLED
+T06,tt_um_proteus.v,316,top,SURVIVED,KILLED,KILLED
+T07,tt_um_proteus.v,478,capture,SURVIVED,SURVIVED,SURVIVED
+T08,tt_um_proteus.v,468,capture,SURVIVED,KILLED,KILLED
+T09,tt_um_proteus.v,627,top,SURVIVED,KILLED,KILLED
+T10,tt_um_proteus.v,626,top,SURVIVED,KILLED,KILLED
+
+mutations: 57  KILLED=37  SURVIVED=20
+kill rate: 37/57 = 64.9% (survivors 20)
+kills per bench: engine=25/57  top=18/57
+elapsed: 492.0s
+# PROTEUS mutation run
+# when: 2026-11-03T04:47:00
+# command: python3 tools/mutate.py --all
+# benches: engine, top
+# per-run timeout: 180 s
+# src sha256: proteus_defs.vh 5c055b96cd6f3dbd
+# src sha256: proteus_engine.v 17c37d92592fca62
+# src sha256: proteus_host.v e0d19eaf00eb8e99
+# src sha256: tt_um_proteus.v 322d1b385c400903
+
+# baseline (unmutated src/)
+#   engine: SURVIVED in 0.19s
+#   top: SURVIVED in 4.93s
+
+=== MUT A01 [alu] proteus_engine.v:408 -- KILLED
+--- change: "+ {1'b0, b};" -> "- {1'b0, b};"
+--- intent: ADD/ADDI adds -> subtracts
+--- engine: KILLED in 0.13s
+    exit=1 FAIL b_r0: got 0x5 expected 0x15 (pc=12 cycle=95)
+    FAIL b_r2_ff_plus_1: got 0xfe expected 0x0 (pc=12 cycle=95)
+    FAIL b_r4_dec: got 0xfc expected 0xfe (pc=5 cycle=136)
+    FAIL b_r5_mov: got 0xfc expected 0xfe (pc=5 cycle=136)
+    FAIL b_cmp_z: got 0x0 expected 0x1 (pc=5 cycle=136)
+    FAIL b_cmp_c: got 0x1 expected 0x0 (pc=5 cycle=136)
+--- top: KILLED in 5.04s
+    exit=1 FAIL r0 = 0xA5 + 1 (program-computed): got 0xa4 expected 0xa6 (t=209945000)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:985: top_e2e_tb FAILED
+
+=== MUT A02 [alu] proteus_engine.v:418 -- KILLED
+--- change: "- {1'b0, b};" -> "+ {1'b0, b};"
+--- intent: SUB/SUBI/CMP subtracts -> adds
+--- engine: KILLED in 0.14s
+    exit=1 FAIL b_r0: got 0x1b expected 0x15 (pc=12 cycle=95)
+    FAIL b_r4_dec: got 0x0 expected 0xfe (pc=5 cycle=136)
+    FAIL b_r5_mov: got 0x0 expected 0xfe (pc=5 cycle=136)
+    FAIL b_cmp_z: got 0x0 expected 0x1 (pc=5 cycle=136)
+    FAIL b_r1_sbci_borrow_in: got 0x1 expected 0xfe (pc=12 cycle=184)
+    FAIL b_r5_neg: got 0x5 expected 0xfb (pc=12 cycle=184)
+--- top: SURVIVED in 4.99s
+
+=== MUT A03 [alu] proteus_engine.v:419 -- KILLED
+--- change: 'co = t[8];' -> 'co = ~t[8];'
+--- intent: subtract borrow flag inverted
+--- engine: KILLED in 0.14s
+    exit=1 FAIL b_cmp_c: got 0x1 expected 0x0 (pc=5 cycle=136)
+    FAIL b_r1_sbci_borrow_in: got 0xff expected 0xfe (pc=12 cycle=184)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 2 check(s) failed ====
+--- top: SURVIVED in 5.11s
+
+=== MUT A04 [alu] proteus_engine.v:413 -- KILLED
+--- change: "+ {8'd0, cin};" -> ';'
+--- intent: ADC/ADCI drops the carry-in
+--- engine: KILLED in 0.15s
+    exit=1 FAIL b_r0_adci_carry_in: got 0x0 expected 0x1 (pc=12 cycle=184)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 5.14s
+
+=== MUT A05 [alu] proteus_engine.v:432 -- KILLED
+--- change: "4'd8 - shn" -> "shn - 4'd1"
+--- intent: SHL carry uses the SHR carry formula
+--- engine: KILLED in 0.13s
+    exit=1 FAIL b_shl_carry: got 0x0 expected 0x1 (pc=2 cycle=221)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 4.94s
+
+=== MUT A06 [alu] proteus_engine.v:446 -- KILLED
+--- change: "(a[7] ? (8'hFF << (4'd8 - shn)) : 8'h00)" -> "8'h00"
+--- intent: ASR loses the sign fill (becomes SHR)
+--- engine: KILLED in 0.17s
+    exit=1 FAIL b_r2_asri_sign_fill: got 0x40 expected 0xc0 (pc=12 cycle=184)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 4.93s
+
+=== MUT A07 [alu] proteus_engine.v:456 -- KILLED
+--- change: 'co = r[0];' -> 'co = r[7];'
+--- intent: ROL carry taken from the wrong end
+--- engine: KILLED in 0.16s
+    exit=1 FAIL b_rol_carry: got 0x0 expected 0x1 (pc=4 cycle=223)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 4.98s
+
+=== MUT A08 [alu] proteus_engine.v:465 -- KILLED
+--- change: 'co = r[7];' -> 'co = r[0];'
+--- intent: ROR carry taken from the wrong end
+--- engine: KILLED in 0.14s
+    exit=1 FAIL b_ror_carry: got 0x0 expected 0x1 (pc=6 cycle=225)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 5.43s
+
+=== MUT A09 [alu] proteus_engine.v:651 -- KILLED
+--- change: "alu_f(OP_ADD, regs[f_rd], 8'h01, c_r)" -> "alu_f(OP_SUB, regs[f_rd], 8'h01, c_r)"
+--- intent: INC decrements
+--- engine: KILLED in 0.15s
+    exit=1 FAIL b_r4_dec: got 0xfc expected 0xfe (pc=5 cycle=136)
+    FAIL b_r5_mov: got 0xfc expected 0xfe (pc=5 cycle=136)
+    FAIL b_cmp_z: got 0x0 expected 0x1 (pc=5 cycle=136)
+    FAIL b_cmp_c: got 0x1 expected 0x0 (pc=5 cycle=136)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 4 check(s) failed ====
+--- top: SURVIVED in 4.94s
+
+=== MUT A10 [alu] proteus_engine.v:665 -- KILLED
+--- change: "alu_f(OP_SUB, regs[f_rd], 8'h01, c_r)" -> "alu_f(OP_ADD, regs[f_rd], 8'h01, c_r)"
+--- intent: DEC increments
+--- engine: KILLED in 0.14s
+    exit=1 FAIL b_r4_dec: got 0x0 expected 0xfe (pc=5 cycle=136)
+    FAIL b_r5_mov: got 0x0 expected 0xfe (pc=5 cycle=136)
+    FAIL b_cmp_z: got 0x0 expected 0x1 (pc=5 cycle=136)
+    FAIL b_cmp_c: got 0x1 expected 0x0 (pc=5 cycle=136)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 4 check(s) failed ====
+--- top: SURVIVED in 5.31s
+
+=== MUT A11 [alu] proteus_engine.v:637 -- KILLED
+--- change: "alu_f(OP_SUB, 8'h00, regs[f_rd], c_r)" -> "alu_f(OP_ADD, 8'h00, regs[f_rd], c_r)"
+--- intent: NEG becomes a no-op (0-x -> 0+x)
+--- engine: KILLED in 0.16s
+    exit=1 FAIL b_r5_neg: got 0x5 expected 0xfb (pc=12 cycle=184)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 5.21s
+
+=== MUT A12 [alu] proteus_engine.v:405 -- KILLED
+--- change: "{1'b0, b[2:0]}" -> "{1'b0, b[3:1]}"
+--- intent: shift/rotate count read one bit too high
+--- engine: KILLED in 0.20s
+    exit=1 FAIL b_r2_asri_sign_fill: got 0x80 expected 0xc0 (pc=12 cycle=184)
+    FAIL b_r6_shift_by_7: got 0x10 expected 0x1 (pc=12 cycle=185)
+    FAIL b_r7_shli: got 0x80 expected 0x0 (pc=2 cycle=221)
+    FAIL b_shl_carry: got 0x0 expected 0x1 (pc=2 cycle=221)
+    FAIL b_r4_roli: got 0x81 expected 0x3 (pc=4 cycle=223)
+    FAIL b_rol_carry: got 0x0 expected 0x1 (pc=4 cycle=223)
+--- top: SURVIVED in 5.34s
+
+=== MUT P01 [pacer] proteus_engine.v:834 -- KILLED
+--- change: 'if (cycle >= next_int_r)' -> 'if (cycle > next_int_r)'
+--- intent: PACE deadline compare off by one
+--- engine: SURVIVED in 0.22s
+--- top: KILLED in 5.05s
+    exit=1 FAIL first toggle interval = PERIOD-1: got 0x10 expected 0x0f (t=130807000)
+    FAIL st interval past 2^24 = period-1: got 0x00 expected 0xff (t=611977000)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:985: top_e2e_tb FAILED
+
+=== MUT P02 [pacer] proteus_engine.v:838 -- KILLED
+--- change: "{31'd0, n_next_carry}" -> "{31'd0, 1'b0}"
+--- intent: pacer fractional carry dropped from the deadline
+--- engine: KILLED in 0.15s
+    exit=1 FAIL f2_mean: got -20 expected -1..1 (pc=6 cycle=3125)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 4.92s
+
+=== MUT P03 [pacer] proteus_engine.v:845 -- KILLED
+--- change: 'n_next_int  = cycle;' -> "n_next_int  = cycle + 32'd1;"
+--- intent: PACERST arms the deadline one cycle late
+--- engine: SURVIVED in 0.16s
+--- top: KILLED in 5.00s
+    exit=1 FAIL first toggle interval = PERIOD-1: got 0x10 expected 0x0f (t=130807000)
+    FAIL st interval past 2^24 = period-1: got 0x00 expected 0xff (t=611977000)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:985: top_e2e_tb FAILED
+
+=== MUT P04 [waitc] proteus_engine.v:818 -- KILLED
+--- change: "({21'd0, waitc_n} - 32'd1)" -> "({21'd0, waitc_n})"
+--- intent: WAITC n occupies n+1 cycles
+--- engine: KILLED in 0.18s
+    exit=1 FAIL e_waitc_cycles: got 0x2 expected 0x1 (pc=1 cycle=471)
+    FAIL e_waitc_cycles: got 0x6 expected 0x5 (pc=1 cycle=512)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 2 check(s) failed ====
+--- top: SURVIVED in 4.92s
+
+=== MUT P05 [waitc] proteus_engine.v:821 -- KILLED
+--- change: "wait_left_r - 32'd1" -> "wait_left_r - 32'd2"
+--- intent: WAITC stall counter decrements by two
+--- engine: KILLED in 0.13s
+    exit=1 FAIL e_waitc_cycles: got 0x4 expected 0x5 (pc=1 cycle=509)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 5.00s
+
+=== MUT P06 [timeout] proteus_engine.v:759 -- KILLED
+--- change: "if (wait_left_r <= 32'd1)" -> "if (wait_left_r < 32'd1)"
+--- intent: WAITP timeout fires one cycle late
+--- engine: KILLED in 0.14s
+    exit=1 FAIL e2_timeout_cycles: got 0x102 expected 0x101 (pc=1 cycle=804)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 5.02s
+
+=== MUT P07 [timeout] proteus_engine.v:756 -- KILLED
+--- change: "{16'h0000, timeout_r, 8'h00}" -> "{17'h0000, timeout_r, 7'h00}"
+--- intent: WAITP timeout unit 256 -> 128 cycles
+--- engine: KILLED in 0.14s
+    exit=1 FAIL e2_timeout_cycles: got 0x81 expected 0x101 (pc=1 cycle=675)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 5.03s
+
+=== MUT P08 [waitp] proteus_engine.v:750 -- KILLED
+--- change: "if (f_rs[2] ? (tmp_v == f_imm) : (tmp_v == 8'h00))" -> "if (f_rs[2] ? (tmp_v == 8'h00) : (tmp_v == f_imm))"
+--- intent: WAITP level polarity swapped
+--- engine: KILLED in 0.17s
+    exit=1 FAIL d_waitp_still_stalled: got 0x3 expected 0x2 (pc=3 cycle=395)
+    FAIL d_waitp_ss_stall_data: got 0x0 expected 0x1 (pc=3 cycle=395)
+    FAIL d_waitp_still_stalled: got 0x3 expected 0x2 (pc=3 cycle=396)
+    FAIL d_waitp_ss_stall_mask: got 0x0 expected 0x3 (pc=3 cycle=396)
+    FAIL d_waitp_ss_stall_data: got 0x0 expected 0x1 (pc=3 cycle=396)
+    FAIL d_waitp_ss_stall_oe: got 0x0 expected 0x3 (pc=3 cycle=396)
+--- top: SURVIVED in 4.97s
+
+=== MUT C01 [control] proteus_engine.v:776 -- KILLED
+--- change: "3'd1: take = z_r;" -> "3'd1: take = ~z_r;"
+--- intent: JZ takes the opposite condition
+--- engine: KILLED in 0.16s
+    exit=1 FAIL b2_conditions: got 0xf0 expected 0x7 (pc=16 cycle=273)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 4.92s
+
+=== MUT C02 [control] proteus_engine.v:778 -- KILLED
+--- change: "3'd3: take = c_r;" -> "3'd3: take = ~c_r;"
+--- intent: JC takes the opposite condition
+--- engine: KILLED in 0.16s
+    exit=1 FAIL b2_conditions: got 0x5 expected 0x7 (pc=16 cycle=273)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 4.94s
+
+=== MUT C03 [control] proteus_engine.v:785 -- KILLED
+--- change: '& LAST_PC;' -> '& (LAST_PC - 1);'
+--- intent: jump target mask off by one
+--- engine: KILLED in 0.12s
+    exit=1 FAIL f1_interval: got 0x3 expected 0x10 (pc=4 cycle=869)
+    FAIL f1_interval: got 0x3 expected 0x10 (pc=4 cycle=869)
+    FAIL f1_interval: got 0x3 expected 0x10 (pc=4 cycle=869)
+    FAIL f1_interval: got 0x3 expected 0x10 (pc=4 cycle=869)
+    FAIL f1_interval: got 0x3 expected 0x10 (pc=4 cycle=869)
+    FAIL f1_interval: got 0x3 expected 0x10 (pc=4 cycle=869)
+--- top: KILLED in 5.17s
+    exit=1 FAIL first toggle interval = PERIOD-1: got 0x04 expected 0x0f (t=130807000)
+    FAIL toggle interval 1 = 4, expected 16 (cycles 12667..12671)
+    FAIL toggle interval 2 = 4, expected 16 (cycles 12671..12675)
+    FAIL toggle interval 3 = 4, expected 16 (cycles 12675..12679)
+    FAIL toggle interval 4 = 4, expected 16 (cycles 12679..12683)
+    FAIL st interval past 2^24 = period-1: got 0x04 expected 0xff (t=611977000)
+
+=== MUT C04 [control] proteus_engine.v:159 -- KILLED
+--- change: 'ADDR_ONE = 1;' -> 'ADDR_ONE = 2;'
+--- intent: PC increments by two
+--- engine: KILLED in 0.23s
+    exit=1 FAIL a_prog_ready_after_fill: got 0x0 expected 0x1 (pc=0 cycle=34)
+    FAIL a_fetched_word31_is_halt: got 0xxxxxxx expected 0x700000 (pc=0 cycle=34)
+    FAIL load_words: prog_ready never asserted after 128 ticks
+    FAIL b_r0: got 0x0 expected 0x15 (pc=0 cycle=204)
+    FAIL b_r1: got 0x0 expected 0x3 (pc=0 cycle=204)
+    FAIL b_r3_not: got 0x0 expected 0xfd (pc=0 cycle=204)
+--- top: KILLED in 8.98s
+    exit=1 FAIL UIO0 toggled only 0 times in 400 cycles (expected >= 6)
+    FAIL first toggle interval = PERIOD-1: got 0xxx expected 0x0f (t=130807000)
+    FAIL eng0 PC sample 0x00 outside loop body 5..7
+    FAIL eng0 PC sample 0x00 outside loop body 5..7
+    FAIL ng0 did not halt within 20 polls (t=258785000)
+    FAIL r0 = 0xA5 + 1 (program-computed): got 0x00 expected 0xa6 (t=263525000)
+
+=== MUT C05 [control] proteus_engine.v:987 -- SURVIVED
+--- change: '(pc_r == LAST_PC)' -> "1'b0"
+--- intent: PC wrap test removed (rely on width wrap)
+--- engine: SURVIVED in 0.21s
+--- top: SURVIVED in 5.43s
+
+=== MUT C06 [control] proteus_engine.v:365 -- KILLED
+--- change: '(f_op == OP_HALT)' -> '(f_op == OP_NOP)'
+--- intent: halt_exec decodes NOP, so HALT does not retire RUN
+--- engine: SURVIVED in 0.18s
+--- top: KILLED in 6.88s
+    exit=1 FAIL TUS run=0 after HALT (halt_exec): got 1 expected 0 (t=215585000)
+    FAIL bit0 retired by HALT instruction: got 1 expected 0 (t=218405000)
+    FAIL eave the barrier within 40 polls (t=596895000)
+    FAIL eave the barrier within 40 polls (t=709695000)
+    FAIL barrier pins never asserted (uio0=-1 uio1=-1)
+    FAIL h barrier pins driven afterwards: got 0x00 expected 0x03 (t=709727000)
+
+=== MUT C07 [control] proteus_engine.v:285 -- KILLED
+--- change: 'run & ~run_q' -> 'run & run_q'
+--- intent: run-rising restart never fires (stale PC executes)
+--- engine: KILLED in 0.25s
+    exit=1 FAIL b_r0: got 0x0 expected 0x15 (pc=0 cycle=95)
+    FAIL b_r1: got 0x0 expected 0x3 (pc=0 cycle=95)
+    FAIL b_r3_not: got 0x0 expected 0xfd (pc=0 cycle=95)
+    FAIL b_flag_n: got 0x0 expected 0x1 (pc=0 cycle=95)
+    FAIL b_halted: got 0x0 expected 0x1 (pc=0 cycle=95)
+    FAIL b_r4_dec: got 0x0 expected 0xfe (pc=0 cycle=136)
+--- top: KILLED in 8.15s
+    exit=1 FAIL UIO0 toggled only 0 times in 400 cycles (expected >= 6)
+    FAIL first toggle interval = PERIOD-1: got 0xxx expected 0x0f (t=130807000)
+    FAIL eng0 PC sample 0x00 outside loop body 5..7
+    FAIL eng0 PC sample 0x00 outside loop body 5..7
+    FAIL ng0 did not halt within 20 polls (t=258785000)
+    FAIL r0 = 0xA5 + 1 (program-computed): got 0xa5 expected 0xa6 (t=263525000)
+
+=== MUT C08 [control] proteus_engine.v:286 -- KILLED
+--- change: '& prog_ready_r & ~restart' -> '& ~restart'
+--- intent: engine executes before the program fill is ready
+--- engine: KILLED in 0.14s
+    exit=1 FAIL a_run_before_fill_no_exec: got 0x1 expected 0x0 (pc=0 cycle=46)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 4.95s
+
+=== MUT C09 [control] proteus_engine.v:1094 -- KILLED
+--- change: 'if (fill_cnt == LAST_PC)' -> 'if (fill_cnt == LAST_PC - 1)'
+--- intent: prog_ready asserted one word early
+--- engine: KILLED in 0.13s
+    exit=1 FAIL a_prog_ready_during_fill: got 0x1 expected 0x0 (pc=0 cycle=33)
+    FAIL a_fetched_word31_is_halt: got 0xxxxxxx expected 0x700000 (pc=0 cycle=34)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 2 check(s) failed ====
+--- top: SURVIVED in 4.94s
+
+=== MUT C10 [control] proteus_engine.v:254 -- KILLED
+--- change: 'host_prog_addr <= LAST_ADDR' -> 'host_prog_addr < LAST_ADDR'
+--- intent: last program word is dropped / reads 0 (off-by-one)
+--- engine: KILLED in 0.16s
+    exit=1 FAIL a_fetched_word31_is_halt: got 0x0 expected 0x700000 (pc=0 cycle=34)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 5.04s
+
+=== MUT F01 [fifo] proteus_engine.v:301 -- KILLED
+--- change: 'in_full_w   = (in_cnt  == FIFO_FULL)' -> 'in_full_w   = (in_cnt  == FIFO_FULL - 1)'
+--- intent: input-FIFO full comparison flipped (full one early)
+--- engine: KILLED in 0.14s
+    exit=1 FAIL y_in_full: got 0x0 expected 0x1 (pc=0 cycle=3423)
+    FAIL y_in_still_full: got 0x0 expected 0x1 (pc=0 cycle=3424)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 2 check(s) failed ====
+--- top: SURVIVED in 4.95s
+
+=== MUT F02 [fifo] proteus_engine.v:853 -- KILLED
+--- change: 'if (out_cnt < FIFO_FULL)' -> 'if (out_cnt <= FIFO_FULL)'
+--- intent: PUSH accepted when the output FIFO is full
+--- engine: KILLED in 0.16s
+    exit=1 FAIL y_out_full: got 0x0 expected 0x1 (pc=10 cycle=3545)
+    FAIL y_out_blocked_halted: got 0x1 expected 0x0 (pc=10 cycle=3545)
+    FAIL y_out_head: got 0x4 expected 0x0 (pc=10 cycle=3545)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 3 check(s) failed ====
+--- top: SURVIVED in 5.30s
+
+=== MUT F03 [fifo] proteus_engine.v:1184 -- KILLED
+--- change: '(host_in_push && (in_cnt < FIFO_FULL))' -> '(host_in_push && (in_cnt <= FIFO_FULL))'
+--- intent: host push accepted when the input FIFO is full
+--- engine: KILLED in 0.14s
+    exit=1 FAIL y_in_still_full: got 0x0 expected 0x1 (pc=0 cycle=3424)
+    FAIL y_in_drained: got 0x0 expected 0x1 (pc=4 cycle=3466)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 2 check(s) failed ====
+--- top: SURVIVED in 4.96s
+
+=== MUT F04 [fifo] proteus_engine.v:880 -- KILLED
+--- change: "n_nf = 1'b1;" -> "n_nf = 1'b0;"
+--- intent: PUSHN on a full FIFO does not flag nf
+--- engine: KILLED in 0.16s
+    exit=1 FAIL y2_pushn_nf: got 0x0 expected 0x1 (pc=10 cycle=3598)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 4.98s
+
+=== MUT G01 [pins] proteus_engine.v:698 -- KILLED
+--- change: "8'hFF, 1'b1)" -> "8'h00, 1'b1)"
+--- intent: SETP drives 0 instead of 1 (equals CLRP)
+--- engine: KILLED in 0.15s
+    exit=1 FAIL c_setp_uo_data: got 0x0 expected 0xf (pc=1 cycle=310)
+    FAIL c_setp_wo_data: got 0x0 expected 0x1 (pc=5 cycle=314)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 2 check(s) failed ====
+--- top: KILLED in 5.74s
+    exit=1 FAIL STATUS: 3 engine-generated edges: got 0x00 expected 0x03 (t=295835000)
+    FAIL CAP_INFO level=1 (rising edge 1): got 0 expected 1 (t=298655000)
+    FAIL CAP_TS edge 1 is zero (t=303395000)
+    FAIL capture timestamps not increasing: 0 then 0
+    FAIL CAP_INFO level=1 (rising edge 3): got 0 expected 1 (t=319415000)
+    FAIL capture timestamps not increasing: 0 then 0
+
+=== MUT G02 [pins] proteus_engine.v:704 -- KILLED
+--- change: "~tmp_v, 1'b1)" -> "tmp_v, 1'b1)"
+--- intent: TOGP does not invert the pin snapshot
+--- engine: KILLED in 0.17s
+    exit=1 FAIL c_togp_uo_data: got 0xf expected 0xf0 (pc=3 cycle=312)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: KILLED in 7.09s
+    exit=1 FAIL UIO0 toggled only 0 times in 400 cycles (expected >= 6)
+    FAIL first toggle interval = PERIOD-1: got 0xxx expected 0x0f (t=130807000)
+    FAIL pacer produced only 0 completions past 2^24
+    FAIL st interval past 2^24 = period-1: got 0xxx expected 0xff (t=611977000)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:985: top_e2e_tb FAILED
+
+=== MUT G03 [pins] proteus_engine.v:722 -- KILLED
+--- change: 'p_oe_val  = (p_oe_val & ~f_imm) | f_imm;' -> 'p_oe_val  = p_oe_val & ~f_imm;'
+--- intent: DIRS acts as DIRC (clears instead of sets)
+--- engine: KILLED in 0.15s
+    exit=1 FAIL c_dirs_oe_data: got 0x0 expected 0x4 (pc=7 cycle=316)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 5.06s
+
+=== MUT G04 [pins] proteus_engine.v:729 -- KILLED
+--- change: 'p_oe_val  = p_oe_val & ~f_imm;' -> 'p_oe_val  = (p_oe_val & ~f_imm) | f_imm;'
+--- intent: DIRC acts as DIRS (sets instead of clears)
+--- engine: KILLED in 0.26s
+    exit=1 FAIL c_dirc_oe_data: got 0x2 expected 0x0 (pc=6 cycle=315)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 4.95s
+
+=== MUT G05 [pins] proteus_engine.v:736 -- KILLED
+--- change: 'p_od_val  = (p_od_val & ~f_imm) | f_imm;' -> 'p_od_val  = p_od_val & ~f_imm;'
+--- intent: ODSET clears the open-drain bit instead of setting it
+--- engine: KILLED in 0.17s
+    exit=1 FAIL c_odset_od_data: got 0x0 expected 0x8 (pc=8 cycle=317)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 4.95s
+
+=== MUT G06 [pins] proteus_engine.v:292 -- KILLED
+--- change: "{1'b0, ss_wm1_r} + 3'd1" -> "{1'b0, ss_wm1_r} + 3'd2"
+--- intent: side-set window one pin too wide
+--- engine: KILLED in 0.13s
+    exit=1 FAIL d_nop_ss_wo_mask: got 0x7 expected 0x3 (pc=1 cycle=393)
+    FAIL d_nop_ss_oe_mask: got 0x7 expected 0x3 (pc=1 cycle=393)
+    FAIL d_nop_ss_oe_data: got 0x7 expected 0x3 (pc=1 cycle=393)
+    FAIL d_waitp_ss_stall_mask: got 0x7 expected 0x3 (pc=2 cycle=394)
+    FAIL d_waitp_ss_stall_oe: got 0x7 expected 0x3 (pc=2 cycle=394)
+    FAIL d_waitp_ss_stall_mask: got 0x7 expected 0x3 (pc=2 cycle=395)
+--- top: SURVIVED in 4.97s
+
+=== MUT G07 [pins] proteus_engine.v:681 -- KILLED
+--- change: 'if (bp_inv_r) tmp_v[0] = ~tmp_v[0];' -> "if (1'b0) tmp_v[0] = ~tmp_v[0];"
+--- intent: OUTBIT ignores the configured invert
+--- engine: KILLED in 0.14s
+    exit=1 FAIL c_outbit_inv_data: got 0x1 expected 0x0 (pc=2 cycle=357)
+    FATAL: /home/ubuntu/verilog/tb/engine_smoke_tb.v:1135: ==== FAIL: 1 check(s) failed ====
+--- top: SURVIVED in 5.00s
+
+=== MUT H01 [host] proteus_host.v:245 -- KILLED
+--- change: 'reg_addr  <= ptr;' -> 'reg_addr  <= addr;'
+--- intent: WRITE_INC writes to the address pointer instead of the data pointer
+--- engine: SURVIVED in 0.14s
+--- top: KILLED in 4.94s
+    exit=1 FAIL WRITE_INC wrote 0x0520 (UO_OUT): got 0x00 expected 0x5a (t=44675000)
+    FAIL WRITE_INC ptr++ -> 0x0521: got 0x00 expected 0xa5 (t=44675000)
+    FAIL READ_INC read 0x0520: got 0x00 expected 0x5a (t=49935000)
+    FAIL READ_INC ptr++ -> 0x0521: got 0x00 expected 0xa5 (t=49935000)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:985: top_e2e_tb FAILED
+
+=== MUT H02 [host] proteus_host.v:247 -- KILLED
+--- change: "ptr       <= ptr + 16'd1;" -> "ptr       <= ptr + 16'd2;"
+--- intent: WRITE_INC auto-increment skips a register
+--- engine: SURVIVED in 0.15s
+--- top: KILLED in 4.97s
+    exit=1 FAIL WRITE_INC ptr++ -> 0x0521: got 0x00 expected 0xa5 (t=44675000)
+    FAIL READ_INC ptr++ -> 0x0521: got 0x00 expected 0xa5 (t=49935000)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:985: top_e2e_tb FAILED
+
+=== MUT H03 [host] proteus_host.v:127 -- KILLED
+--- change: '{shreg, mosi_d2}' -> '{mosi_d2, shreg}'
+--- intent: SPI receive shift register takes bits LSB-first
+--- engine: SURVIVED in 0.16s
+--- top: KILLED in 8.11s
+    exit=1 FAIL ID0 = 'P': got 0x00 expected 0x50 (t=4935000)
+    FAIL ID1 = 'R': got 0x00 expected 0x52 (t=4935000)
+    FAIL VERSION: got 0x00 expected 0x01 (t=4935000)
+    FAIL PING response: got 0x00 expected 0x50 (t=6475000)
+    FAIL prog word0 byte0: got 0x00 expected 0x34 (t=19675000)
+    FAIL prog word0 byte1: got 0x00 expected 0x12 (t=19675000)
+
+=== MUT H04 [host] proteus_host.v:208 -- SURVIVED
+--- change: 'tx_byte[6 - bit_cnt]' -> 'tx_byte[7 - bit_cnt]'
+--- intent: MISO shifts out the wrong bit of the byte
+--- engine: SURVIVED in 0.15s
+--- top: SURVIVED in 5.03s
+
+=== MUT H05 [host] proteus_host.v:199 -- KILLED
+--- change: "reg_raddr        <= ptr + 16'd1;" -> 'reg_raddr        <= ptr;'
+--- intent: READ_INC re-reads the same address (early fetch pointer)
+--- engine: SURVIVED in 0.16s
+--- top: KILLED in 5.01s
+    exit=1 FAIL READ_INC ptr++ -> 0x0521: got 0x5a expected 0xa5 (t=49935000)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:985: top_e2e_tb FAILED
+
+=== MUT H06 [host] proteus_host.v:266 -- KILLED
+--- change: 'addr  <= {byte_in, addr[7:0]};' -> 'addr  <= {addr[7:0], byte_in};'
+--- intent: WRITE_ADDR high address byte swapped into the low half
+--- engine: SURVIVED in 0.17s
+--- top: KILLED in 5.24s
+    exit=1 FAIL prog word0 byte0: got 0x00 expected 0x34 (t=19675000)
+    FAIL prog word0 byte2: got 0x70 expected 0xaa (t=19675000)
+    FAIL eng0 prog_mem[0] assembled: got 0x701200 expected 0xaa1234 (t=19675000)
+    FAIL byte0 untouched by byte1 rewrite: got 0x00 expected 0x34 (t=27235000)
+    FAIL byte2 untouched by byte1 rewrite: got 0x70 expected 0xaa (t=27235000)
+    FAIL eng0 prog_mem[0] merged: got 0x705600 expected 0xaa5634 (t=27235000)
+
+=== MUT T01 [top] tt_um_proteus.v:729 -- KILLED
+--- change: 'oe_q & (~(od_q & uio_q))' -> 'oe_q & (~(od_q & ~uio_q))'
+--- intent: open-drain release inverted (drives high instead of releasing)
+--- engine: SURVIVED in 0.15s
+--- top: KILLED in 5.79s
+    exit=1 FAIL od high releases the pad: got 1 expected 0 (t=341105000)
+    FAIL od low still drives the pad: got 0 expected 1 (t=343955000)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:985: top_e2e_tb FAILED
+
+=== MUT T02 [top] tt_um_proteus.v:356 -- SURVIVED
+--- change: '(od_low & uio_in)' -> '(od_low & ~uio_in)'
+--- intent: open-drain collision condition inverted
+--- engine: SURVIVED in 0.20s
+--- top: SURVIVED in 5.02s
+
+=== MUT T03 [top] tt_um_proteus.v:507 -- KILLED
+--- change: '((arr_b0 & run_mask) == run_mask)' -> "((arr_b0 & run_mask) != 4'd0)"
+--- intent: barrier releases as soon as any engine arrives
+--- engine: SURVIVED in 0.15s
+--- top: KILLED in 4.93s
+    exit=1 FAIL barrier released engines in different cycles: uio0 at 9320, uio1 at 9322 (2 cycles apart)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:985: top_e2e_tb FAILED
+
+=== MUT T04 [top] tt_um_proteus.v:502 -- KILLED
+--- change: 'bar_arr0 | cur_b0' -> 'bar_arr0 & cur_b0'
+--- intent: barrier arrivals are not sticky
+--- engine: SURVIVED in 0.15s
+--- top: KILLED in 6.93s
+    exit=1 FAIL eave the barrier within 40 polls (t=596895000)
+    FAIL eave the barrier within 40 polls (t=709695000)
+    FAIL barrier pins never asserted (uio0=-1 uio1=-1)
+    FAIL h barrier pins driven afterwards: got 0x00 expected 0x03 (t=709727000)
+    FAIL  retired by HALT on both engines: got 0x03 expected 0x00 (t=712547000)
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:985: top_e2e_tb FAILED
+
+=== MUT T05 [top] tt_um_proteus.v:553 -- KILLED
+--- change: 'run_reg <= run_reg & (~halt_mask);' -> 'run_reg <= run_reg;'
+--- intent: halt_mask dropped: HALT no longer retires RUN
+--- engine: SURVIVED in 0.17s
+--- top: KILLED in 5.30s
+    exit=1 FAIL TUS run=0 after HALT (halt_exec): got 1 expected 0 (t=215585000)
+    FAIL bit0 retired by HALT instruction: got 1 expected 0 (t=218405000)
+    FAIL  retired by HALT on both engines: got 0x03 expected 0x00 (t=492587000)
+    FAIL  did not halt after HOST_DISABLE (t=800755000)
+    FAIL abric-owned: engine write landed: got 0x00 expected 0x03 (t=800785000)
+    FAIL ngine write landed after disable: got 0 expected 1 (t=800785000)
+
+=== MUT T06 [top] tt_um_proteus.v:316 -- KILLED
+--- change: '~uo_m_all[mi*8 +: 8]) | (uo_d_all[mi*8 +: 8] & uo_m_all[mi*8 +: 8]' -> '~wo_m_all[mi*8 +: 8]) | (uo_d_all[mi*8 +: 8] & wo_m_all[mi*8 +: 8]'
+--- intent: uo_out merge uses the uio write mask
+--- engine: SURVIVED in 0.13s
+--- top: KILLED in 5.59s
+    exit=1 FAIL  did not halt after HOST_DISABLE (t=800755000)
+    FAIL abric-owned: engine write landed: got 0x00 expected 0x03 (t=800785000)
+    FAIL  the fabric value inside a frame: got 0 expected 1 (t=802165000)
+    FAIL uo_out[0] still tracks MISO after HOST_DISABLE
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:985: top_e2e_tb FAILED
+
+=== MUT T07 [capture] tt_um_proteus.v:478 -- KILLED
+--- change: 'cap_entry[36:5]' -> "{1'b0, cap_entry[35:5]}"
+--- intent: capture timestamp loses its top bit
+--- engine: SURVIVED in 0.18s
+--- top: KILLED in 5.17s
+    exit=1 FAIL CAP_TS at injected cycle 0x80000000: got 0x00000000
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:985: top_e2e_tb FAILED
+
+=== MUT T08 [capture] tt_um_proteus.v:468 -- KILLED
+--- change: 'cap_wp + cap_ok[CAP_AW-1:0]' -> "cap_wp + 1'b1"
+--- intent: capture write pointer advances once per cycle, not once per event
+--- engine: SURVIVED in 0.18s
+--- top: KILLED in 5.12s
+    exit=1 FAIL capture timestamps not increasing: 29005 then 29000
+    FAIL capture timestamps not increasing: 29000 then 28995
+    FAIL CAP_TS at injected cycle 0x80000000: got 0x0000714d
+    FATAL: /home/ubuntu/verilog/tb/top_e2e_tb.v:985: top_e2e_tb FAILED
+
+=== MUT T09 [top] tt_um_proteus.v:627 -- KILLED
+--- change: "(pm_byte != 2'd3)" -> "(pm_byte != 2'd2)"
+--- intent: program byte lane 2 is dropped
+--- engine: SURVIVED in 0.15s
+--- top: KILLED in 5.36s
+    exit=1 FAIL prog word0 byte2: got 0x70 expected 0xaa (t=19675000)
+    FAIL eng0 prog_mem[0] assembled: got 0x701234 expected 0xaa1234 (t=19675000)
+    FAIL byte2 untouched by byte1 rewrite: got 0x70 expected 0xaa (t=27235000)
+    FAIL eng0 prog_mem[0] merged: got 0x705634 expected 0xaa5634 (t=27235000)
+    FAIL i=32 write did not alias word0: got 0x705634 expected 0xaa5634 (t=30055000)
+    FAIL prog readback eng0 word 0 lane 2: got 0x70 expected 0x9a
+
+=== MUT T10 [top] tt_um_proteus.v:626 -- KILLED
+--- change: "* 4'd3 +" -> "* 4'd4 +"
+--- intent: program byte-lane map uses a 4-lane stride (engine lane swap)
+--- engine: SURVIVED in 0.14s
+--- top: KILLED in 5.00s
+    exit=1 FAIL prog readback eng1 word 0 lane 2: got 0x00 expected 0x72
+    FAIL prog readback eng1 word 1 lane 2: got 0x00 expected 0x72
+    FAIL prog readback eng1 word 2 lane 2: got 0x00 expected 0x72
+    FAIL prog readback eng1 word 3 lane 2: got 0x00 expected 0x8e
+    FAIL prog readback eng1 word 4 lane 0: got 0x00 expected 0x10
+    FAIL prog readback eng1 word 4 lane 2: got 0x10 expected 0x44
+
+=== SUMMARY
+id,file,line,cat,engine,top,verdict
+A01,proteus_engine.v,408,alu,KILLED,KILLED,KILLED
+A02,proteus_engine.v,418,alu,KILLED,SURVIVED,KILLED
+A03,proteus_engine.v,419,alu,KILLED,SURVIVED,KILLED
+A04,proteus_engine.v,413,alu,KILLED,SURVIVED,KILLED
+A05,proteus_engine.v,432,alu,KILLED,SURVIVED,KILLED
+A06,proteus_engine.v,446,alu,KILLED,SURVIVED,KILLED
+A07,proteus_engine.v,456,alu,KILLED,SURVIVED,KILLED
+A08,proteus_engine.v,465,alu,KILLED,SURVIVED,KILLED
+A09,proteus_engine.v,651,alu,KILLED,SURVIVED,KILLED
+A10,proteus_engine.v,665,alu,KILLED,SURVIVED,KILLED
+A11,proteus_engine.v,637,alu,KILLED,SURVIVED,KILLED
+A12,proteus_engine.v,405,alu,KILLED,SURVIVED,KILLED
+P01,proteus_engine.v,834,pacer,SURVIVED,KILLED,KILLED
+P02,proteus_engine.v,838,pacer,KILLED,SURVIVED,KILLED
+P03,proteus_engine.v,845,pacer,SURVIVED,KILLED,KILLED
+P04,proteus_engine.v,818,waitc,KILLED,SURVIVED,KILLED
+P05,proteus_engine.v,821,waitc,KILLED,SURVIVED,KILLED
+P06,proteus_engine.v,759,timeout,KILLED,SURVIVED,KILLED
+P07,proteus_engine.v,756,timeout,KILLED,SURVIVED,KILLED
+P08,proteus_engine.v,750,waitp,KILLED,SURVIVED,KILLED
+C01,proteus_engine.v,776,control,KILLED,SURVIVED,KILLED
+C02,proteus_engine.v,778,control,KILLED,SURVIVED,KILLED
+C03,proteus_engine.v,785,control,KILLED,KILLED,KILLED
+C04,proteus_engine.v,159,control,KILLED,KILLED,KILLED
+C05,proteus_engine.v,987,control,SURVIVED,SURVIVED,SURVIVED
+C06,proteus_engine.v,365,control,SURVIVED,KILLED,KILLED
+C07,proteus_engine.v,285,control,KILLED,KILLED,KILLED
+C08,proteus_engine.v,286,control,KILLED,SURVIVED,KILLED
+C09,proteus_engine.v,1094,control,KILLED,SURVIVED,KILLED
+C10,proteus_engine.v,254,control,KILLED,SURVIVED,KILLED
+F01,proteus_engine.v,301,fifo,KILLED,SURVIVED,KILLED
+F02,proteus_engine.v,853,fifo,KILLED,SURVIVED,KILLED
+F03,proteus_engine.v,1184,fifo,KILLED,SURVIVED,KILLED
+F04,proteus_engine.v,880,fifo,KILLED,SURVIVED,KILLED
+G01,proteus_engine.v,698,pins,KILLED,KILLED,KILLED
+G02,proteus_engine.v,704,pins,KILLED,KILLED,KILLED
+G03,proteus_engine.v,722,pins,KILLED,SURVIVED,KILLED
+G04,proteus_engine.v,729,pins,KILLED,SURVIVED,KILLED
+G05,proteus_engine.v,736,pins,KILLED,SURVIVED,KILLED
+G06,proteus_engine.v,292,pins,KILLED,SURVIVED,KILLED
+G07,proteus_engine.v,681,pins,KILLED,SURVIVED,KILLED
+H01,proteus_host.v,245,host,SURVIVED,KILLED,KILLED
+H02,proteus_host.v,247,host,SURVIVED,KILLED,KILLED
+H03,proteus_host.v,127,host,SURVIVED,KILLED,KILLED
+H04,proteus_host.v,208,host,SURVIVED,SURVIVED,SURVIVED
+H05,proteus_host.v,199,host,SURVIVED,KILLED,KILLED
+H06,proteus_host.v,266,host,SURVIVED,KILLED,KILLED
+T01,tt_um_proteus.v,729,top,SURVIVED,KILLED,KILLED
+T02,tt_um_proteus.v,356,top,SURVIVED,SURVIVED,SURVIVED
+T03,tt_um_proteus.v,507,top,SURVIVED,KILLED,KILLED
+T04,tt_um_proteus.v,502,top,SURVIVED,KILLED,KILLED
+T05,tt_um_proteus.v,553,top,SURVIVED,KILLED,KILLED
+T06,tt_um_proteus.v,316,top,SURVIVED,KILLED,KILLED
+T07,tt_um_proteus.v,478,capture,SURVIVED,KILLED,KILLED
+T08,tt_um_proteus.v,468,capture,SURVIVED,KILLED,KILLED
+T09,tt_um_proteus.v,627,top,SURVIVED,KILLED,KILLED
+T10,tt_um_proteus.v,626,top,SURVIVED,KILLED,KILLED
+
+mutations: 57  KILLED=54  SURVIVED=3
+kill rate: 54/57 = 94.7% (survivors 3)
+kills per bench: engine=37/57  top=23/57
+elapsed: 320.6s

@@ -11,3 +11,21 @@ test/sim_build
 test/__pycache__/
 test/results.xml
 test/gate_level_netlist.v
+
+# Local simulation / tooling
+.venv/
+.tools/
+tt-template/
+__pycache__/
+sim/sim_build/
+sim/results.xml
+results/*.log
+.pytest_cache/
+formal/work/
+formal/sby/
+fpga/db/
+fpga/incremental_db/
+fpga/output_files/
+
+# tb/run.sh build logs
+/logs/

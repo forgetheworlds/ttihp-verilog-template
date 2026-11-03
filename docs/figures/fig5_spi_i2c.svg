@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="652" viewBox="0 0 1000 652" role="img" aria-labelledby="t d">
+<title id="t">SPI mode 0 and I2C START/ACK traces</title>
+<desc id="d">Measured SPI mode-0 byte (CS_N, SCK, MOSI, MISO) and I2C START and ACK waveforms with annotated setup and hold intervals.</desc>
+<style>
+  :root { --fg:#1f2328; --muted:#57606a; --border:#c9d1d9;
+           --surface:#f6f8fa; --accent:#0969da; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg:#e6edf3; --muted:#8b949e; --border:#30363d;
+             --surface:#161b22; --accent:#58a6ff; }
+  }
+  text { font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; fill:var(--fg,#1f2328); }
+  .m { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  .dim { fill:var(--muted,#57606a); }
+  .acc { fill:var(--accent,#0969da); }
+  .box { fill:none; stroke:var(--border,#c9d1d9); stroke-width:1.2; }
+  .hi  { fill:none; stroke:var(--accent,#0969da); stroke-width:1.4; }
+  .w   { stroke:var(--fg,#1f2328); stroke-width:1.6; fill:none; }
+  .tick{ stroke:var(--accent,#0969da); stroke-width:1; stroke-dasharray:3 3; fill:none; }
+  .grid{ stroke:var(--border,#c9d1d9); stroke-width:1; fill:none; }
+  .arrow { stroke:var(--fg,#1f2328); stroke-width:1.2; fill:none; }
+  .naive { stroke:var(--muted,#57606a); stroke-width:1.4; fill:none; }
+</style>
+<text x="24" y="26" font-size="17" text-anchor="start" class="" font-weight="600">Two more protocols on the pads: SPI mode 0 and I2C START/ACK</text>
+<text x="24" y="44" font-size="11.5" text-anchor="start" class="dim">firmware/spi_master.asm on engine 2 and i2c_master.asm (START/WRITE on engine 2, READ/STOP on engine 1 in v2), run on tools/model.py with independent peer models (archived at legacy/v1/tools/tests/protocols.py).</text>
+<text x="24" y="76" font-size="11" text-anchor="start" class="" font-weight="600">A  SPI mode 0 — one CS-framed byte</text>
+<text x="24" y="105" font-size="10" text-anchor="start" class="m">CS_N</text>
+<text x="24" y="143" font-size="10" text-anchor="start" class="m">SCK</text>
+<text x="24" y="181" font-size="10" text-anchor="start" class="m">MOSI</text>
+<text x="24" y="219" font-size="10" text-anchor="start" class="m">MISO</text>
+<polyline points="140.0,92.0 154.1,92.0 154.1,108.0 902.5,108.0 902.5,92.0 950.0,92.0" class="w" /><polyline points="140.0,130.0 143.5,130.0 143.5,146.0 198.1,146.0 198.1,130.0 242.1,130.0 242.1,146.0 286.2,146.0 286.2,130.0 330.2,130.0 330.2,146.0 374.2,146.0 374.2,130.0 418.2,130.0 418.2,146.0 462.2,146.0 462.2,130.0 506.3,130.0 506.3,146.0 550.3,146.0 550.3,130.0 594.3,130.0 594.3,146.0 638.3,146.0 638.3,130.0 682.3,130.0 682.3,146.0 726.4,146.0 726.4,130.0 770.4,130.0 770.4,146.0 814.4,146.0 814.4,130.0 858.4,130.0 858.4,146.0 950.0,146.0" class="w" /><polyline points="140.0,168.0 245.7,168.0 245.7,184.0 333.7,184.0 333.7,168.0 421.7,168.0 421.7,184.0 597.8,184.0 597.8,168.0 685.9,168.0 685.9,184.0 773.9,184.0 773.9,168.0 950.0,168.0" class="w" /><polyline points="140.0,206.0 154.1,206.0 154.1,222.0 330.2,222.0 330.2,206.0 682.3,206.0 682.3,222.0 858.4,222.0 858.4,206.0 950.0,206.0" class="w" /><line x1="198.1086956521739" y1="124" x2="198.1086956521739" y2="236" class="tick" />
+<line x1="286.1521739130435" y1="124" x2="286.1521739130435" y2="236" class="tick" />
+<line x1="374.195652173913" y1="124" x2="374.195652173913" y2="236" class="tick" />
+<line x1="462.2391304347826" y1="124" x2="462.2391304347826" y2="236" class="tick" />
+<line x1="550.2826086956522" y1="124" x2="550.2826086956522" y2="236" class="tick" />
+<line x1="638.3260869565217" y1="124" x2="638.3260869565217" y2="236" class="tick" />
+<line x1="726.3695652173913" y1="124" x2="726.3695652173913" y2="236" class="tick" />
+<line x1="814.4130434782609" y1="124" x2="814.4130434782609" y2="236" class="tick" />
+<text x="198.1086956521739" y="250" font-size="9.5" text-anchor="middle" class="m dim">b7</text>
+<text x="286.1521739130435" y="250" font-size="9.5" text-anchor="middle" class="m dim">b6</text>
+<text x="374.195652173913" y="250" font-size="9.5" text-anchor="middle" class="m dim">b5</text>
+<text x="462.2391304347826" y="250" font-size="9.5" text-anchor="middle" class="m dim">b4</text>
+<text x="550.2826086956522" y="250" font-size="9.5" text-anchor="middle" class="m dim">b3</text>
+<text x="638.3260869565217" y="250" font-size="9.5" text-anchor="middle" class="m dim">b2</text>
+<text x="726.3695652173913" y="250" font-size="9.5" text-anchor="middle" class="m dim">b1</text>
+<text x="814.4130434782609" y="250" font-size="9.5" text-anchor="middle" class="m dim">b0</text>
+<text x="144" y="266" font-size="9.2" text-anchor="start" class="m dim">SCK: CS_N low at 8, first rise at 33 (25 setup); all 15 gaps between the 16 edges are 25 cycles; last edge 408, CS_N high at 433 (25 hold).</text>
+
+<text x="144" y="280" font-size="9.5" text-anchor="start" class="m dim">MOSI 0xA5, MISO 0x3C; CS_N low 8..433, frame 425 cycles; SCK idles high on the pull-up until cycle 2.</text>
+
+<text x="24" y="304" font-size="11" text-anchor="start" class="" font-weight="600">B  I2C START — open drain, pull-ups</text>
+<text x="24" y="346" font-size="10" text-anchor="start" class="m">SCL</text>
+<text x="24" y="384" font-size="10" text-anchor="start" class="m">SDA</text>
+<polyline points="140.0,332.0 142.7,332.0 142.7,348.0 150.8,348.0 150.8,332.0 829.9,332.0 829.9,348.0 950.0,348.0" class="w" /><polyline points="140.0,370.0 491.0,370.0 491.0,386.0 854.1,386.0 854.1,370.0 950.0,370.0" class="w" /><line x1="150.8" y1="316" x2="150.8" y2="332" class="tick" />
+<line x1="491.0" y1="352" x2="491.0" y2="370" class="tick" />
+<text x="491.0" y="346" font-size="9.5" text-anchor="middle" class="m acc">SDA falls, 260 → START</text>
+<line x1="829.85" y1="352" x2="829.85" y2="386" class="tick" />
+<text x="829.85" y="400" font-size="9.5" text-anchor="middle" class="m">SCL falls, 511</text>
+<text x="144" y="420" font-size="9.5" text-anchor="start" class="m dim">setup (SCL high → SDA fall) = 252 cycles; hold (SDA fall → SCL fall) = 251. Both &gt;= the 40-cycle fast-mode minimum.</text>
+<text x="24" y="456" font-size="11" text-anchor="start" class="" font-weight="600">C  I2C ACK — the ninth clock</text>
+<text x="24" y="498" font-size="10" text-anchor="start" class="m">SCL</text>
+<text x="24" y="536" font-size="10" text-anchor="start" class="m">SDA</text>
+<polyline points="140.0,500.0 140.0,500.0 140.0,484.0 299.1,484.0 299.1,500.0 539.3,500.0 539.3,484.0 780.4,484.0 780.4,500.0 950.0,500.0" class="w" /><polyline points="140.0,538.0 780.4,538.0 780.4,522.0 950.0,522.0" class="w" /><line x1="539.2823529411764" y1="468" x2="539.2823529411764" y2="484" class="tick" />
+<text x="539.2823529411764" y="462" font-size="9.5" text-anchor="middle" class="m acc">ACK clock rises, 4819</text>
+<line x1="780.3764705882353" y1="504" x2="780.3764705882353" y2="538" class="tick" />
+<text x="780.3764705882353" y="552" font-size="9.5" text-anchor="middle" class="m">target releases SDA, 5072</text>
+<text x="144" y="572" font-size="9.5" text-anchor="start" class="m dim">SDA is low for the whole high phase of the ninth clock — that is the ACK (I2cTarget.acks[0] = 0). The master released SDA after the address; the target held it.</text>
+<text x="144" y="586" font-size="9.5" text-anchor="start" class="m dim">SCL high phase 4819..5072 = 253 cycles; the 400-cycle stretch in the RTL run extends the low phase instead (results/protocol_rtl.md).</text>
+<text x="24" y="616" font-size="9.5" text-anchor="start" class="m dim">All three traces come from the same model run used by legacy/v1/tools/tests/test_firmware.py: SPI byte 0xA5 with a complementing slave (MISO 0x3C), I2C write 0xA0 to target 0x50.</text>
+<text x="24" y="634" font-size="9.5" text-anchor="start" class="m dim">On the real RTL the same images give SPI 25-cycle phases and I2C phases &gt;= 250 cycles; results/protocol_rtl.md records 123 SPI and 30 I2C checks at the pads.</text>
+
+</svg>

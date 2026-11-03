@@ -1,0 +1,31 @@
+PROP  DEPTH  PROVE     COVER            NOTE
+== tool versions ==
+SBY v0.70-9-g79fc9ed
+Yosys 0.70+290 (git sha1 e8968a4f7, Release, GNU /usr/bin/aarch64-linux-gnu-g++ 15.2.0)
+E0    40     FAIL      REACHED(1/1)     control: FAIL is EXPECTED (probe liveness); cex in results/formal_E0.txt
+E1    40     PASS      REACHED(1/1)
+E2    40     PASS      REACHED(2/2)
+E3    40     PASS      REACHED(1/1)
+E4    48     PASS      REACHED(1/1)
+E4B   40     PASS      REACHED(1/1)
+E5    40     PASS      REACHED(1/1)
+E6    40     PASS      REACHED(2/2)
+E7    40     PASS      REACHED(1/1)     bounded proof ok; induction step did not converge
+E8    40     PASS      REACHED(1/1)
+E9    40     PASS      PARTIAL(6/7)     1 audit cover unreached by construction (results/formal_E9_cover.txt)
+E10   40     PASS      REACHED(1/1)
+E11   40     PASS      REACHED(1/1)
+X1    -      PASS      -                208 post-reset cycles; uio_oe/uio_out/uo_out free of X/Z
+T1    20     PASS      0/1 unreached     no host write / engine execution inside depth 20
+T2    20     PASS      0/1 unreached     no host write / engine execution inside depth 20
+T3    20     PASS      1/1 REACHED       frame open: MISO/uo_out[0] observed with CS_N high
+T4    96     SPEC      1/1 REACHED       legal end-of-frame strobe; CS_N hold >= 2 clk (architecture s6)
+T5    20     PASS      0/1 unreached     no barrier event inside depth 20
+T6    20     PASS      0/1 unreached     no barrier event inside depth 20
+T7    96     not run   -                 OPEN: HALT-instr antecedent needs >70 cycles; see report §4.1
+
+Note: the COVER column was post-corrected for T1-T6. The first generated table
+counted yosys-smtbmc's "Unreached cover statement" lines as reached because the
+parser anchored at line start and those lines carry a timestamp prefix. The
+parser is fixed in formal/run.sh; the statuses above are taken from
+results/formal_T*_cover.txt.
