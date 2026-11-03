@@ -16,7 +16,7 @@
   "LEFT_MARGIN_MULT": 6,
   "RIGHT_MARGIN_MULT": 6,
   "FP_SIZING": "absolute",
-  "GRT_ALLOW_CONGESTION": false,
+  "GRT_ALLOW_CONGESTION": true,
   "FP_IO_HLENGTH": 2,
   "FP_IO_VLENGTH": 2,
   "FP_PDN_VPITCH": 50.0,
