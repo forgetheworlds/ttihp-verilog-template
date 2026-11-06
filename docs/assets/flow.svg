@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" width="960" height="640" class="fig" role="img" aria-labelledby="flow-title flow-desc">
+  <title id="flow-title">PROTEUS physical flow: Metal3 demand on 6x4 against its supply, and the 8x4 result</title>
+  <desc id="flow-desc">On 6x4, Metal3 demand is 114.45 percent of the derated supply; with GRT_ADJUSTMENT 0.2 the global figure drops to 94.43 percent but 10,404 local overflow edges remain. The 8x4 run completes detailed routing, passes DRC, LVS and antenna, but fails setup and hold because resizer margins had been zeroed for the 6x4 experiment; the rerun is pending.</desc>
+
+  <style>
+    .fig { --fg: #1b1f24; --muted: #5b6875; --border: #c6d0da; --surface: #f7f9fc; --accent: #1f5f8b; --success: #2f7d4f; --warning: #a16a12; --error: #b03a2e; }
+    .fig text { fill: var(--fg); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 15px; }
+    .fig .s13 { font-size: 13px; }
+    .fig .s14 { font-size: 14px; }
+    .fig .s16 { font-size: 16px; }
+    .fig .s22 { font-size: 22px; }
+    .fig .b { font-weight: 600; }
+    .fig .muted { fill: var(--muted); }
+    .fig .accent { fill: var(--accent); }
+    .fig .warning { fill: var(--warning); }
+    .fig .box { fill: var(--surface); stroke: var(--border); stroke-width: 1.4; }
+    .fig .demand { fill: var(--error); }
+    .fig .demand-derated { fill: var(--warning); }
+    .fig .axis { stroke: var(--border); stroke-width: 1.4; }
+    .fig .supply { stroke: var(--accent); stroke-width: 1.6; stroke-dasharray: 6 5; }
+    .fig .ok { fill: var(--success); }
+    .fig .bad { fill: var(--error); }
+    .fig .warn { fill: var(--warning); }
+  </style>
+
+  <text x="24" y="36" class="s22 b">Where 6x4 stops and what 8x4 fixed</text>
+  <text x="24" y="60" class="s14 muted">Metal3 carries the horizontal demand. 6x4 asks for more than it has; 8x4 finishes the flow.</text>
+
+  <!-- 6x4 panel -->
+  <rect x="24" y="84" width="440" height="440" rx="8" class="box"/>
+  <text x="40" y="112" class="s16 b">6x4: Metal3 capacity</text>
+  <text x="40" y="134" class="s13 muted">24 tiles, 1289.28 x 710.64 um. Bars are % of derated supply.</text>
+
+  <text x="56" y="176" class="s13 b">default global-route adjustment: 114.45 %</text>
+  <rect x="56" y="184" width="320" height="46" rx="3" class="demand"/>
+
+  <text x="56" y="268" class="s13 b">GRT_ADJUSTMENT 0.2: 94.43 %</text>
+  <rect x="56" y="276" width="264" height="46" rx="3" class="demand-derated"/>
+
+  <line x1="336" y1="160" x2="336" y2="340" class="supply"/>
+  <text x="332" y="154" class="s13 accent" text-anchor="end">derated supply = 100 %</text>
+
+  <line x1="56" y1="340" x2="392" y2="340" class="axis"/>
+  <text x="56" y="356" class="s13 muted" text-anchor="middle">0</text>
+  <text x="196" y="356" class="s13 muted" text-anchor="middle">50</text>
+  <text x="336" y="356" class="s13 muted" text-anchor="middle">100</text>
+
+  <text x="40" y="390" class="s13">Metal3 is the only horizontal routing layer.</text>
+  <text x="40" y="410" class="s13">The default asks for 114.45 % of the derated supply.</text>
+  <text x="40" y="430" class="s13">At GRT_ADJUSTMENT 0.2 the average falls to 94.43 %,</text>
+  <text x="40" y="450" class="s13">but 10,404 local overflow edges remain, so detailed</text>
+  <text x="40" y="470" class="s13">routing never converges.</text>
+  <text x="40" y="500" class="s13 warning">Six attempts, 40 min to 3 h 27 min, silent.</text>
+
+  <!-- 8x4 panel -->
+  <rect x="490" y="84" width="446" height="440" rx="8" class="box"/>
+  <text x="506" y="112" class="s16 b">8x4: the flow completes</text>
+  <text x="506" y="134" class="s13 muted">32 tiles instead of 24: more room on Metal3, a larger die.</text>
+
+  <circle cx="512" cy="157" r="5" class="ok"/>
+  <text x="528" y="162" class="s14">global route: Metal3 within the derated supply</text>
+
+  <circle cx="512" cy="195" r="5" class="ok"/>
+  <text x="528" y="200" class="s14">detailed route: completes</text>
+
+  <circle cx="512" cy="233" r="5" class="ok"/>
+  <text x="528" y="238" class="s14">DRC: PASS</text>
+
+  <circle cx="512" cy="271" r="5" class="ok"/>
+  <text x="528" y="276" class="s14">LVS: PASS</text>
+
+  <circle cx="512" cy="309" r="5" class="ok"/>
+  <text x="528" y="314" class="s14">antenna: PASS</text>
+
+  <circle cx="512" cy="347" r="5" class="ok"/>
+  <text x="528" y="352" class="s14">views: GDS, netlist, reports saved</text>
+
+  <circle cx="512" cy="385" r="5" class="bad"/>
+  <text x="528" y="390" class="s14">setup at nom_slow_1p08V_125C: FAIL</text>
+
+  <circle cx="512" cy="423" r="5" class="bad"/>
+  <text x="528" y="428" class="s14">hold at nom_fast_1p32V_m40C: FAIL</text>
+
+  <circle cx="512" cy="461" r="5" class="warn"/>
+  <text x="528" y="466" class="s14">resizer margins restored: rerun pending</text>
+
+  <text x="506" y="498" class="s13 muted">The margins had been zeroed for the 6x4 experiment.</text>
+
+  <!-- bottom band -->
+  <rect x="24" y="544" width="912" height="68" rx="6" class="box"/>
+  <text x="40" y="570" class="s14">The 8x4 GDS is real: DRC, LVS and antenna pass. Timing sign-off is not there yet.</text>
+  <text x="40" y="592" class="s13 muted">Both timing checkers failed at the slow and fast corners for a workaround, not for the design; the rerun is pending.</text>
+</svg>

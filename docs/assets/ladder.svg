@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 700" width="960" height="700" class="fig" role="img" aria-labelledby="ladder-title ladder-desc">
+  <title id="ladder-title">PROTEUS verification ladder and measured results</title>
+  <desc id="ladder-desc">Eight verification layers, ordered from cheap and shallow to expensive and close to sign-off: golden model, cocotb protocol tests, directed benches, cycle-exact differential, engine formal, mutation, synthesis, and LibreLane hardening. Measured counts appear on the right.</desc>
+
+  <style>
+    .fig { --fg: #1b1f24; --muted: #5b6875; --border: #c6d0da; --surface: #f7f9fc; --accent: #1f5f8b; --success: #2f7d4f; --warning: #a16a12; --error: #b03a2e; }
+    .fig text { fill: var(--fg); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 15px; }
+    .fig .s13 { font-size: 13px; }
+    .fig .s14 { font-size: 14px; }
+    .fig .s15 { font-size: 15px; }
+    .fig .s22 { font-size: 22px; }
+    .fig .b { font-weight: 600; }
+    .fig .muted { fill: var(--muted); }
+    .fig .accent { fill: var(--accent); }
+    .fig .box { fill: var(--surface); stroke: var(--border); stroke-width: 1.4; }
+    .fig .panel { fill: var(--surface); stroke: var(--border); stroke-width: 1.4; }
+    .fig .ok { fill: var(--success); }
+    .fig .warn { fill: var(--warning); }
+  </style>
+
+  <text x="24" y="36" class="s22 b">Verification ladder</text>
+  <text x="24" y="60" class="s14 muted">Each layer catches a different class of defect. Ordered cheap to expensive; counts are from the shipped tree.</text>
+  <text x="640" y="78" class="s13 muted">measured result</text>
+
+  <!-- 1: model -->
+  <rect x="56" y="88" width="560" height="54" rx="6" class="box"/>
+  <rect x="68" y="101" width="28" height="28" rx="4" class="box"/>
+  <text x="82" y="120" class="s14 b" text-anchor="middle">1</text>
+  <text x="110" y="112" class="s15 b">Golden model</text>
+  <text x="110" y="132" class="s13 muted">Cycle-accurate specification in tools/model.py; protocol demos run on it</text>
+  <circle cx="596" cy="115" r="6" class="ok"/>
+  <text x="640" y="120" class="s14">11/11 demos</text>
+
+  <!-- 2: cocotb protocols -->
+  <rect x="56" y="150" width="560" height="54" rx="6" class="box"/>
+  <rect x="68" y="163" width="28" height="28" rx="4" class="box"/>
+  <text x="82" y="182" class="s14 b" text-anchor="middle">2</text>
+  <text x="110" y="174" class="s15 b">cocotb protocols on the RTL</text>
+  <text x="110" y="194" class="s13 muted">UART TX/RX, SPI, I2C, Ethernet MII decoded at the pads</text>
+  <circle cx="596" cy="177" r="6" class="ok"/>
+  <text x="640" y="182" class="s14">6 tests · 236 checks</text>
+
+  <!-- 3: directed benches -->
+  <rect x="56" y="212" width="560" height="54" rx="6" class="box"/>
+  <rect x="68" y="225" width="28" height="28" rx="4" class="box"/>
+  <text x="82" y="244" class="s14 b" text-anchor="middle">3</text>
+  <text x="110" y="236" class="s15 b">Directed RTL benches</text>
+  <text x="110" y="256" class="s13 muted">CSR, top smoke, engine smoke, top end-to-end, six assist units</text>
+  <circle cx="596" cy="239" r="6" class="ok"/>
+  <text x="640" y="244" class="s14">10 benches · 693 checks</text>
+
+  <!-- 4: differential -->
+  <rect x="56" y="274" width="560" height="54" rx="6" class="box"/>
+  <rect x="68" y="287" width="28" height="28" rx="4" class="box"/>
+  <text x="82" y="306" class="s14 b" text-anchor="middle">4</text>
+  <text x="110" y="298" class="s15 b">Cycle-exact differential</text>
+  <text x="110" y="318" class="s13 muted">Every register, pin, FIFO entry and capture event, every cycle</text>
+  <circle cx="596" cy="301" r="6" class="ok"/>
+  <text x="640" y="306" class="s14">209 programs · 16,122 cycles · 0 mismatch</text>
+
+  <!-- 5: formal -->
+  <rect x="56" y="336" width="560" height="54" rx="6" class="box"/>
+  <rect x="68" y="349" width="28" height="28" rx="4" class="box"/>
+  <text x="82" y="368" class="s14 b" text-anchor="middle">5</text>
+  <text x="110" y="360" class="s15 b">Engine formal (SBY)</text>
+  <text x="110" y="380" class="s13 muted">Barriers, HALT, pacer and pin ops bounded at depth 40; E0 is a fail control</text>
+  <circle cx="596" cy="363" r="6" class="warn"/>
+  <text x="640" y="368" class="s14">E1–E8, E10, E11 PASS · E9 4/5</text>
+
+  <!-- 6: mutation -->
+  <rect x="56" y="398" width="560" height="54" rx="6" class="box"/>
+  <rect x="68" y="411" width="28" height="28" rx="4" class="box"/>
+  <text x="82" y="430" class="s14 b" text-anchor="middle">6</text>
+  <text x="110" y="422" class="s15 b">Mutation testing</text>
+  <text x="110" y="442" class="s13 muted">99 plausible defects injected; the benches must notice</text>
+  <circle cx="596" cy="425" r="6" class="ok"/>
+  <text x="640" y="430" class="s14">95/99 killed · 96.0 %</text>
+
+  <!-- 7: synthesis -->
+  <rect x="56" y="460" width="560" height="54" rx="6" class="box"/>
+  <rect x="68" y="473" width="28" height="28" rx="4" class="box"/>
+  <text x="82" y="492" class="s14 b" text-anchor="middle">7</text>
+  <text x="110" y="484" class="s15 b">Synthesis and area</text>
+  <text x="110" y="504" class="s13 muted">Yosys flat mapping against the IHP SG13CMOS5L liberty</text>
+  <circle cx="596" cy="487" r="6" class="ok"/>
+  <text x="640" y="492" class="s14">519,233.80 um² · 57.54 %</text>
+
+  <!-- 8: LibreLane -->
+  <rect x="56" y="522" width="560" height="54" rx="6" class="box"/>
+  <rect x="68" y="535" width="28" height="28" rx="4" class="box"/>
+  <text x="82" y="554" class="s14 b" text-anchor="middle">8</text>
+  <text x="110" y="546" class="s15 b">LibreLane GDS</text>
+  <text x="110" y="566" class="s13 muted">8x4 hardening: detailed route, DRC, LVS, antenna, timing</text>
+  <circle cx="596" cy="549" r="6" class="warn"/>
+  <text x="640" y="554" class="s14">DRC/LVS/antenna PASS · timing open</text>
+
+  <!-- note -->
+  <rect x="56" y="600" width="840" height="76" rx="6" class="panel"/>
+  <text x="72" y="624" class="s14">The model is the reference for cycle semantics: a wrong model makes RTL and model wrong together.</text>
+  <text x="72" y="646" class="s13 muted">Independent protocol decoders, the formal properties and the mutation score are the second opinion.</text>
+  <text x="72" y="666" class="s13 muted">Counts are a snapshot; each has a command in docs/verification.md.</text>
+</svg>

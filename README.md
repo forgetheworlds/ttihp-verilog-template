@@ -1,412 +1,236 @@
-# PROTEUS - a programmable protocol engine
+# PROTEUS
 
-PROTEUS is a **software-defined pin engine** for the Jane Street protocol-emulator
-ASIC competition: three independent 24-bit micro-engines plus **five
-protocol-agnostic assists** on one die, sharing a 24-pin fabric with per-pin
-direction and open-drain control, a 32-bit cycle timebase with deadline pacing,
-hardware barriers, eight IRQ lines, and a 4-entry edge-timestamp capture FIFO.
-Protocols are firmware; the silicon only supplies pins, time, data paths and
-synchronisation. Target: Tiny Tapeout IHP `sg13cmos5l`, `6x4` tiles, 50 MHz,
-submission deadline 2027-01-18 (`research/prior-art.md`).
+A programmable protocol engine on 24 pins.
 
-Unlike a fixed UART/SPI/I2C block, the same three engines run UART, SPI and I2C
-side by side from program memory that the host writes over SPI after reset -
-and can be reprogrammed in the field, because nothing about a protocol is
-committed to gates. The assists carry byte streams that would otherwise not fit
-a 32-word engine: a bit-serial CRC, a 16 x 8 stream FIFO, a 32-bit shift
-register, a USB low-speed NRZI pair and a Manchester pair, all behind three
-instructions and one CSR window. The chip is also an *instrument*: the capture
-unit timestamps edges to the cycle, so it observes a bus as well as driving one.
+PROTEUS is a Tiny Tapeout ASIC for the IHP SG13CMOS5L process. Three identical
+24-bit micro-engines and five protocol-agnostic assists sit behind 24 pads with
+per-pin direction and open-drain control. The chip carries a 32-bit cycle
+timebase with deadline pacing, four hardware barriers, eight IRQ lines and a
+four-entry edge-capture FIFO. Nothing about a protocol is committed to gates.
+The host writes program RAM over SPI, and the same silicon speaks UART, SPI,
+I2C or Ethernet MII depending on what was written into it.
 
-`VERSION` (`0x0002`) reads **`0x02`** for this hybrid build.
+That is the point of building it as an ASIC rather than bit-banging an MCU. An
+MCU can produce a UART frame. Doing three protocols at once while holding their
+edges to a shared cycle timebase, with no interrupt latency in the path, is
+where bit-banging stops being a firmware problem. A fixed UART/SPI/I2C block
+cannot do it either, because in that design the protocol set is the layout.
+PROTEUS is the smallest processor that makes the pins programmable, plus five
+blocks for the work a 32-word program should not be spending instructions on.
+
+The functional evidence is strong and the physical evidence is incomplete, and
+both are in this README. The RTL, testbenches, firmware, formal harness,
+mutation catalogue and most of the flow debugging were produced by an AI coding
+agent with me directing. **No silicon exists yet.** An 8x4 hardened GDS passes
+DRC, LVS and antenna; timing sign-off is pending a rerun.
 
 <p align="center">
-  <img src="docs/figures/fig1_architecture.svg"
-       alt="PROTEUS block diagram: host SPI, register file and decode, three engines plus a five-block assist fabric, pin fabric, barriers, IRQ, capture FIFO and pads"
-       width="100%">
+  <img src="docs/assets/arch.svg" width="900" alt="PROTEUS block diagram: host SPI into proteus_host, a register bus into three 24-bit engines and a five-block assist fabric, then a pin merge and 24 pads. Opcode arrows show LDAS, STAS and ASST; the host CSR window is 0x0600 plus 0x10 times the assist id.">
+  <br>
+  <em>Host SPI is the only fixed interface. Protocols are program RAM, and pin ownership is host &gt; assist &gt; engine.</em>
 </p>
 
-Block diagram: `docs/figures/fig1_architecture.svg`. A three-minute tour with
-runnable commands is in `docs/demo.md`; the other figures are under
-`docs/figures/`.
+## Why this exists
 
----
+I started with four engines, a conventional instruction set and one firmware
+image per protocol. v1 did UART, SPI and I2C; it did not do Ethernet, because
+one complete 802.3 frame measured 230 words against a 32-word engine. The
+problem was not the engine count. Byte-serial work was competing with control
+flow for the same instruction slots.
 
-## Architecture
+The fix had two parts. Timing moved into hardware and the decisions stayed in
+firmware: an engine waits on a pin without spending instructions, the pacer
+carries the fractional remainder instead of rounding it, and the capture unit
+timestamps edges to the cycle, which makes the chip usable as an instrument and
+not only as a driver. Byte-serial work moved out of the instruction stream into
+the assist fabric, reached by three opcodes. The same Ethernet frame now fits in
+31 words.
 
-```
-                    host SPI (mode 0, MSB first, SCK <= clk/8)
-   ui_in[0] SCK ───┐  ui_in[1] CS_N ─┐  ui_in[2] MOSI ─┐      uo_out[0] MISO
-                   v                 v                 v              ^
-              +--------------------------------------------------+     |
-              |  proteus_host: 14-state command FSM, 16-bit ptr |-----+
-              |  cmds 00..09: NOP WRITE_INC READ_INC SET_PTR_LO  |
-              |  SET_PTR_HI WRITE_ADDR READ_ADDR PING RESET DIS  |
-              +---------------------------+----------------------+
-                                          | reg_we/reg_addr/reg_wdata
-     +------------------------------------+-----------------------------------+
-     |                          tt_um_proteus (top)                           |
-     |  register file + decode | barriers(4) | IRQ(8) | capture FIFO (4)       |
-     |  0x0000..0x064F         |             |        | 32-bit cycle counter    |
-     +----+--------------+--------------+------+-----+--------+--------------+
-          |              |              |      |              |
-     +----v----+    +----v----+    +----v----+ +----v----------------------+
-     | engine0 |    | engine1 |    | engine2 | | assist fabric (CSR 0x0600) |
-     | 8 regs  |    |         |    |         | | CRC · FIFO · SHIFT         |
-     | 8-bit ALU    |         |    |         | | NRZI enc/dec · MANCH enc/dec|
-     | pacer   |    |         |    |         | | PINCFG ownership, 5 x 8 reg |
-     +----+----+    +----+----+    +----+----+ +----+-----------------------+
-          |  {data,mask} write buses per bank (uo / uio / oe / od)
-          v              v              v            v
-     +-----------------------------------------------------------------------+
-     | pin fabric merge: engines 0..2, then assist stage, then host registers |
-     | uo_q[7:0]  uio_q[7:0]  oe_q[7:0]  od_q[7:0]   od => high-Z release     |
-     +-----------------------------------------------------------------------+
-        |                    |                         |
-   uo_out[7:2]          uio[7:0]                 ui_in[7:3]
-   fabric out 6        fabric io 8, per-pin OE/OD   fabric in 5
-       (+ uo_out[0]=MISO, uo_out[1]=IRQ while the host owns the pins)
-```
+## How I approach it
 
-### Three engines
+**Three engines, because waiting is not work.**
+Each engine has 32 x 24 program RAM, an 8-bit ALU with `Z`/`C`/`N`, 4-deep
+in/out FIFOs, a 24.8 deadline pacer, side-set, barriers, IRQ and a port to the
+assist bank. UART TX, UART RX and SPI run side by side; an engine blocked in
+`WAITP` or `IRQWAIT` does not stall the others. Four barriers and eight IRQ
+lines are the only coupling.
 
-| file | contents |
+**Five assists, because instruction slots are the scarce resource.**
+The set is CRC-32, a 16 x 8 byte FIFO, a 32-bit shift register, NRZI enc/dec
+and Manchester enc/dec. It costs 59,854.90 um2; the fourth engine it replaced
+cost 132,381.80 um2. Three opcodes reach it (`LDAS` 0x4E, `STAS` 0x4F, `ASST`
+0x50) and the host sees a window at `0x0600 + 0x10*id`. The assists are
+deliberately not protocol blocks: they are the primitives a protocol needs,
+which is why one set is enough for an Ethernet frame, a 10BASE-T line code and
+a USB low-speed line code.
+
+**One fixed interface, and then it gets out of the way.**
+The host is an SPI master: mode 0, MSB first, `SCK <= clk/8`, ten commands
+(`00..09`) and a 16-bit address pointer. It writes program RAM and registers,
+reads them back, and issues `HOST_DISABLE` (`0x09`) to return `ui[0:2]` and
+`uo[0:1]` to the fabric. Pin ownership is host register write > assist
+`PINCFG.en` > engine 2 > engine 1 > engine 0, and every `PINCFG` register
+resets to zero, so an unprogrammed chip behaves exactly as a three-engine
+fabric with no assists attached.
+
+**The model is the specification.**
+`tools/model.py` is a cycle-accurate executable reference; the RTL is written
+to match it. The differential then compares every architectural register, pin,
+FIFO entry and capture event on every cycle, so agreement is not sampled. The
+obvious weakness is stated rather than hidden: a wrong model makes both sides
+wrong in the same way. The independent protocol decoders at the pads and the
+mutation score are the cross-check.
+
+**Tools the agent uses.**
+The repository ships the working tools, not only the design. `python -m proteus`
+exposes the ISA table, the assembler, the cycle model, a machine-readable spec
+(`proteus spec --json`), a mutation-based benchmark generator for RTL-debugging
+agents (`proteus bench`), and an evidence dashboard (`proteus status`) that
+parses the recorded gates instead of restating them. The design was built with
+these tools in the loop, and they are kept because a reviewer can rerun each
+claim with the same entry point. Details in [docs/tools.md](docs/tools.md).
+
+**Verification as a ladder, not a test suite.**
+Each layer answers a different question. Model demos catch protocol mistakes;
+cocotb at the pads catches integration; the differential catches semantic
+drift; formal catches invariants a bench never reaches; mutation measures
+whether the benches would notice a bug; synthesis and hardening catch the
+things no simulation can. The defect with the widest blast radius was found by
+the v2 host-interface suite: it loaded firmware into engine 2 and read back
+zeros, because the program window ended at the two-engine address. Details in
+[docs/showcase/verification.md](docs/showcase/verification.md).
+
+**An agent did the work; I made the calls.**
+The build was one orchestrating agent plus specialist agents on disjoint file
+sets, with decisions written into the files they affect instead of into a chat
+log. The rule that made it reviewable was simple: every number names the log or
+command that produced it. My calls were the target, the cutover bar, the
+one-constant fix for the address-map defect and the move from 6x4 to 8x4. The
+account, including what was reverted, is in
+[docs/showcase/agent-workflow.md](docs/showcase/agent-workflow.md).
+
+**What did not work.**
+6x4 does not route. Metal3 is the only horizontal layer in the stack this flow
+configures, and the design asks for 114.45 % of the derated supply. With
+`GRT_ADJUSTMENT 0.2` the global figure falls to 94.43 %, but 10,404 local
+overflow edges remain and detailed routing never converges. My first
+explanation, an aarch64 runtime block, was wrong; six silent attempts at two
+placement densities looked like a tool problem until the global-route
+congestion report was read. The design moved to 8x4, which routes and passes
+DRC, LVS and antenna. Its timing checkers then failed because the resizer
+margins had been zeroed for the 6x4 experiments and followed the design; the
+margins are restored and the rerun is pending. The full investigation is in
+[docs/showcase/flow.md](docs/showcase/flow.md).
+
+## What worked
+
+The differential is the strongest single result: 209 programs, 16,122 compared
+cycles, zero mismatches, no program cut at the cycle cap. The protocol layer is
+the one that proves the pads: six tests, 236 checks, including a complete
+Ethernet MII frame decoded by a model that shares no code with the firmware.
+The formal suite covers the engine invariants, and mutation says the benches
+would notice a plausible bug 95 times out of 99, with the four survivors argued
+equivalent.
+
+Two defects that review did not catch are worth naming. The engine-2 program
+page was unreachable because `PROTEUS_PM_END` still held the two-engine value
+`0x02FF`; the fix is one constant (`0x03FF`) and a 25-check regression that
+proves the neighbouring page does not alias. Separately, the recorded v2 area
+of 497,927 um2 / 55.18 % did not reproduce on the same sources and library; the
+sign-off number is **519,233.80 um2 / 36,343 cells / 57.54 %**, and the old
+figure is kept in the record as superseded. Both are written up in
+[docs/showcase/verification.md](docs/showcase/verification.md).
+
+| gate | result |
 |---|---|
-| `src/proteus_engine.v` | one engine: 32 x 24 program RAM, decode, 8-bit ALU, 4-deep in/out FIFOs, 24.8 pacer, side-set, barriers, IRQ, host register port, assist port |
-| `src/tt_um_proteus.v` | pins, 3 engines, assist bank, merge (engines -> assists -> host), capture, barriers, IRQ, address decode |
-| `src/proteus_host.v` | SPI slave, command FSM, 16-bit pointer |
-| `src/proteus_defs.vh` | geometry, register map, opcode and CFG constants |
-
-### Five protocol-agnostic assists
-
-| id | block | function | area | CSR |
-|---|---|---|---:|---|
-| 0 | `crc_bit` | 5..32-bit CRC, runtime init/poly/xorout/reflection/bit order, 8 clocks per byte | 21,152.96 um2 | `0x0600..0x060F` |
-| 1 | `assist_fifo` | 16 x 8 byte stream FIFO with drain port, burst counter and IRQ | 12,423.12 um2 | `0x0610..0x061F` |
-| 2 | `shiftreg32` | 32-bit bidirectional shift register, byte push/pop, bit-stuff hook | 9,559.51 um2 | `0x0620..0x062F` |
-| 3 | `nrzi_enc` + `nrzi_dec` | USB LS line code: stuffing, SYNC window, EOP/SE0, runtime bit clock | 10,730.06 um2 | `0x0630..0x063F` |
-| 4 | `manchester_enc` + `manchester_dec` | 10BASE-T PCS at 20 Mbaud half-bits, 4x/8x oversampled receiver | 5,989.26 um2 | `0x0640..0x064F` |
-
-Areas are the hierarchical per-module lines of the shipped synthesis
-(`results/synth_v2_root.txt` lines 18834-19021). The set costs 59,854.90 um2
-total; the fourth engine it replaced cost 132,381.80 um2 (study block,
-`results/hybrid_area.md`). That
-trade is why a complete 802.3 frame fits 31 words instead of the 230 words v1
-measured (`results/ethernet.md`, `v2/results/v2_firmware.md`).
-
-**Access model: three opcodes, not a memory window.**
-
-| op | encoding | semantics |
-|---|---|---|
-| `LDAS` 0x4E | `rd` dest, `rs` assist register 0..7, `imm8[2:0]` assist id | `rd <- assist[id].reg[rs]`, combinational, 1 cycle; an empty source sets `nf` and leaves `rd` |
-| `STAS` 0x4F | `rd` source, `rs` assist register, `imm8[2:0]` assist id | write; a write to `DATA` is the data-path side effect (fold a byte, push a byte) |
-| `ASST` 0x50 | `rs` assist id, `imm8` command | reset/start/stop/arm/sync/eop/flush/latch, per-assist mapping |
-
-Arbitration: the highest engine index wins a same-cycle write or command
-collision (the pin-merge rule); a host CSR write wins over every engine. Reads
-have one port per engine. `LDAS` is one instruction per byte, which is the
-reason the assists exist: the engine's scarcest resource is instruction slots.
-
-**CSR map.** Host view `0x0600 + 0x10*id + reg`, id 0..4, reg 0..7, window end
-`0x064F`. Register 8 of each stride is the host-only `PINCFG`
-(`[7] en, [6:5] bank, [4:2] tx_base, [1:0] rx_base`), so the engine view stays
-exactly 8 registers. The per-assist register tables are in
-`docs/programming.md` §2.6 and `src/proteus_assist.v`; `docs/isa.md` §6.1 is
-the ISA-side summary.
-
-**Pin ownership priority: host > assist > engine.**
-
-```
-engines 0..2 : reg = (reg & ~mask) | (data & mask)      engine 2 wins over 0
-assist stage : reg = (reg & ~as_mask) | (as_data & as_mask), gated by PINCFG.en
-               od  = od & ~as_od_mask                   assist pins are push-pull
-host         : a write to 0x0520..0x0523 latches last   host wins that cycle
-```
-
-All five `PINCFG` registers reset to 0, so with no host configuration the assist
-stage is the identity and the engines own the pads. Assist receive pins are
-sampled from the raw pads, never from the merged output. The ownership
-regression is `tb/top_e2e_tb.v` phase `[4e]`.
-
-### Pacing, measured
-
-The deadline pacer is the part that is hard to get right and easy to claim: a
-100.5-cycle period (0x6480 in 24.8 fixed point) has no integer divider that can
-express it. Measured on `tools/model.py`, the pacer's completions stay on
-`floor(c0 + k*100.5)` while a naive divider loses half a cycle per period:
+| Toolchain self-check | **PASS**: assist opcodes round-trip, five CRC vectors, model FIFO/`nf` |
+| Tiny Tapeout harness | **PASS**: `VERSION 0x02`, 13-word program over SPI, engine-2 page, `HALT` retires `RUN` |
+| cocotb protocols on the RTL | **PASS 6/6, 236 checks**: UART TX/RX, SPI, I2C, Ethernet MII |
+| Directed RTL benches | **10/10**, 693 recorded checks (`tb_csr` 37, `tb_top_smoke` 19, `engine_smoke` 237, `top_e2e` 400) |
+| Cycle-exact differential | **PASS**: 209 programs, 16,122 cycles, 0 mismatches |
+| Engine formal (SBY) | **E1-E8, E10, E11 PASS**, E0 expected-fail control, E9 cover 4/5 |
+| Mutation | **95/99 killed = 96.0 %**, four survivors shown equivalent |
+| Model-level demos | **11/11 PASS** |
+| Synthesis (Yosys flat) | **519,233.80 um2**, 36,343 cells, 57.54 % of 902,417 um2 rows (hierarchical 538,016.13 = 59.62 %) |
+| LibreLane 8x4 | DRC **PASS**, LVS **PASS**, antenna **PASS**, views saved; setup and hold checkers **FAIL**, rerun pending |
 
 <p align="center">
-  <img src="docs/figures/fig3_pacer.svg"
-       alt="Measured PACE completion instants for a 100.5-cycle period, the fractional carry, and the drift of a naive 100-cycle divider"
-       width="100%">
+  <img src="docs/assets/ladder.svg" width="430" alt="Eight verification layers from golden model to LibreLane GDS, with measured counts: 11/11 demos, 6 tests and 236 checks, 10 benches and 693 checks, 209 programs and 16,122 cycles, formal E1-E8/E10/E11 with E9 4/5, 95/99 mutants killed, 519,233.80 square microns and 57.54 percent, and a routed 8x4 GDS with DRC/LVS/antenna pass and timing open.">
+  <img src="docs/assets/flow.svg" width="430" alt="Left: 6x4 Metal3 demand of 114.45 percent of the derated supply, and 94.43 percent with GRT_ADJUSTMENT 0.2 while 10,404 local overflow edges remain. Right: the 8x4 flow completes detailed route, DRC, LVS and antenna, but setup and hold fail because resizer margins had been zeroed for 6x4; the rerun is pending.">
+  <br>
+  <em>Left: the verification ladder and its counts. Right: why 6x4 stopped and where 8x4 stands.</em>
 </p>
 
-The same mechanism turns into a real frame: `firmware/uart_tx.asm` (18 words)
-produces the trace in `docs/figures/fig4_uart_frame.svg`, ten slots of exactly
-434 cycles with transitions two cycles after each tick.
+## Quick start
 
----
-
-## ISA summary
-
-24-bit instruction, one per cycle, **75 opcodes** (`len(tools/isa.py OPS)`), 8 x
-8-bit registers, flags `Z`/`C`/`N`. Field layout (`tools/isa.py`,
-`docs/isa.md` §1):
-
-```
- 23      17 16  14 13  11 10        3 2   0
-+---------+------+------+------------+-----+
-|   op    |  rd  |  rs  |    imm8    | ss  |
-|  7 bits | 3 b  | 3 b  |   8 bits   | 3 b |
-+---------+------+------+------------+-----+
-```
-
-| group | opcodes | examples |
-|---|---|---|
-| ALU immediate | `0x00..0x0E` | `LDI`, `ADDI`, `CMPI`, `SHLI`, `ADCI` |
-| ALU register | `0x10..0x21` | `ADD`, `SUB`, `SHL`, `NOT`, `NEG`, `ADC` |
-| Pin operations | `0x22..0x2D` | `SETP`, `CLRP`, `TOGP`, `OUTP`, `INPR`, `DIRS`, `DIRC`, `ODSET`, `OUTBIT`, `WAITP` |
-| Control | `0x30..0x3E` | `JMP`, `JZ`, `DJNZ`, `HALT`, `WAITC`, `PACE`, `PACERST`, `ASSERT` |
-| System / time | `0x40..0x4D` | `PUSH`, `PULL`, `IRQSET`, `IRQWAIT`, `BAR`, `TSLO`, `MEASLO`, `CAPTURE`, `CFG` |
-| Assist access (v2) | `0x4E..0x50` | `LDAS`, `STAS`, `ASST` |
-
-Representative encoding - `LDAS r1, r2, CRC` (read CRC register 2 into `r1`), as
-produced by `tools/asm.py`:
-
-```
-word = 0x9c5000
-  op   0x4E  = LDAS                     bits 23:17
-  rd   1     destination register       bits 16:14
-  rs   2     assist register index      bits 13:11
-  imm  0     assist id 0 = CRC          bits 10:3
-  ss   0     no side-set                bits  2:0
-```
-
-Field-level quirks worth knowing (all from `src/proteus_engine.v` /
-`tools/asm.py`, not guesses):
-
-- Pin ops: `rs[1:0]` = bank (`0`=UI, `1`=UO, `2`=UIO), `imm8` = mask; `OUTP`
-  and `INPR` also carry a value register in `rd`.
-- `WAITP bank, mask, level`: `rs = bank[1:0] | (level << 2)`, `imm8` = mask.
-  So `WAITP UIO, 0x40, 1` assembles to `0x5A3201` with `[ss=1]`.
-- `WAITC n` with `n = rs[2:0]:imm8` occupies `max(n,1)` cycles.
-- Jump condition lives in `rd`; the assembler fills it from the mnemonic.
-
----
-
-## Toolchain
-
-Everything is plain Python 3.12 plus Icarus/Yosys; the virtualenv is `.venv`.
+Needs Python 3.12, Icarus Verilog and Yosys. The formal suite also needs
+SymbiYosys and z3; the physical flow needs Docker and the PDK.
 
 ```sh
-# assemble; --listing prints "engine address word  disassembly ; source line"
-.venv/bin/python tools/asm.py firmware/uart_tx.asm --listing
-.venv/bin/python tools/asm.py firmware/i2c_master.asm --depth 32 -o i2c.json
-
-# cycle-accurate golden model (executable specification)
-.venv/bin/python -c "import sys; sys.path.insert(0,'tools'); import model; print(model.ProteusModel)"
-
-# toolchain self-check: assist opcode round-trip, five CRC vectors, model FIFO/nf
-python3 tools/selfcheck.py
-
-# assembler/model mutation catalogue used by the mutation score
-python3 tools/mutate.py --list
-```
-
-Instruction counts at the default depth 32 (`tools/asm.py`, measured):
-
-| firmware | words | engines |
-|---|---:|---|
-| `firmware/pin_blink.asm` | 5 | 0 |
-| `firmware/uart_tx.asm` | 18 | 0 |
-| `firmware/uart_rx.asm` | 26 | 1 |
-| `firmware/spi_master.asm` | 32 | 2 (exactly full) |
-| `firmware/i2c_master.asm` | 32 + 32 | 2 + 1 |
-| `firmware/ethernet_mii_tx.asm` | 31 | 0 + CRC/FIFO assists |
-
----
-
-## Verification
-
-Current state, measured 2026-11-03 on this host. Commands are copy-pasteable;
-the report behind every row is in `docs/verification.md` §0.
-
-| suite | command | result |
-|---|---|---|
-| Toolchain self-check | `python3 tools/selfcheck.py` | **SELFCHECK PASS** (assist opcodes round-trip, 5 CRC vectors, model FIFO/`nf`) |
-| Official TT submission gate | `PATH=$PWD/.venv/bin:$PATH make -C test` | **PASS**: 1 test, 147,690 ns, `VERSION 0x02`, 13-word program over SPI, engine 2 page, `RUN` retired by `HALT` |
-| **Protocols on the real RTL** | `cd sim && make` | **PASS 6/6, 236 checks**: v2 map 25, UART TX 18, UART RX 6, SPI 123, I2C 30, **Ethernet MII TX 34** (`v2/results/v2_verify.md`) |
-| RTL directed benches | `bash tb/run.sh` | **PASS=10 FAIL=0**; `tb_csr` 37, `tb_top_smoke` 19, `engine_smoke` 237, `top_e2e` 400 checks |
-| **DUT vs golden model, cycle lockstep** | `cd sim && make diff` | **PASS**: 209 programs, **16,122 compared cycles, 0 mismatches**, no program cut at the cap (`v2/results/v2_diff_formal.md`) |
-| Engine formal (SBY) | `./v2/formal/run.sh` | **E1-E8, E10, E11 PASS** at v1 depths, E0 expected-fail control, E9 cover 4/5 (`v2/results/formal_summary_v2.txt`) |
-| Mutation testing | `python3 tools/mutate.py --all` | **99 mutants, 95 killed = 96.0 %**; 4 survivors shown equivalent (`v2/results/v2_mutation.md`) |
-| Model-level demos | `python3 demos/run_demos.py` | **11/11 PASS**, 3 baselines match (`docs/verification.md` §2.6) |
-| Synthesis / area | `scripts/synth_full.sh` | **519,233.80 um2 flat, 36,343 cells, 57.54 % of row area** (hierarchical 538,016.13 = 59.62 %); `results/synth_v2_root.txt` lines 47230 / 47202 / 19254 |
-| Post-GRT STA | `results/flow_report.md` | setup **+11.0205 ns**, hold **+0.2878 ns** on 20 ns (typ, before routed parasitics) |
-| GDS / DRC / LVS / GLS | GitHub `gds.yaml` (x86_64) | **not run yet**; local aarch64 DRT stalls, see `results/flow_report.md` |
-
-<p align="center">
-  <img src="docs/figures/fig6_verification.svg"
-       alt="Twelve verification layers for the hybrid v2 build, from toolchain self-check to synthesis, with measured pass counts and the artifact behind each"
-       width="100%">
-</p>
-
-A layered view of the evidence, with the artifact behind every count, is in
-`docs/figures/fig6_verification.svg` (its row order is independent of the layer
-numbers in `docs/verification.md` §1). Counts are a snapshot: re-run the command
-in the row above and the figure's source column to refresh them.
-
-The strongest single result is the differential: every architectural register,
-pin, FIFO content and capture event is compared on every cycle, and an injected
-`INC` fault was caught on the first compared cycle. The protocol row is the one
-that exercises the real pads for UART, SPI, I2C and a complete Ethernet frame.
-
-**Known gaps, stated rather than implied** (`docs/verification.md` §3): no routed
-GDS, DRC/LVS, antenna check or slow-corner timing (local aarch64 OpenROAD
-detailed routing stalls; the GitHub x86_64 `gds.yaml` action is authoritative);
-no gate-level simulation; top-level formal T1-T7 and the FPGA build are v1-only,
-and **T7 is open**; assist data paths are outside the differential; Ethernet is
-host-bandwidth-bound at a 16-byte FIFO (content and pad protocol proven, 10 Mbit/s
-sustained not); JTAG is a partial v1 experiment; USB LS and 10BASE-T have
-assists but no protocol demo; the v2 tree ships no pytest suite (v1's 179 tests
-are at `legacy/v1/tools/tests/`).
-
----
-
-## Synthesis and physical flow
-
-```sh
-make pdk            # IHP-Open-PDK @2bbec755 into $HOME/pdk
-make pdk-lite       # liberty-only alternative
-scripts/synth_full.sh   # hierarchical + flat; default OUT=results/synth_full.txt
-                        # sign-off log is results/synth_v2_root.txt; the older
-                        # v2/results/synth_v2.txt is superseded (docs/verification.md §2.9)
-make flow           # LibreLane 6x4 hardening (Docker) -> runs/wokwi/final
-```
-
-**Area is measured** on the 12-file hybrid tree (`results/synth_v2_root.txt`;
-per-module lines 18723-19021, arithmetic in `results/final_evidence.md` §3):
-
-| quantity | value |
-|---|---:|
-| full-chip, flat / sign-off | **519,233.80 um^2**, 36,343 cells |
-| full-chip, hierarchical sum | 538,016.13 um^2 (59.62 % of rows) |
-| utilisation | 57.54 % of 902,417 um^2 row area |
-| vs 60 % placement budget (541,450.20 um^2) | 95.90 %, 22,216.40 um^2 spare |
-| engines (hierarchical, per module) | 132,741.24 / 132,576.77 / 131,313.72 um^2 |
-| assist set (7 blocks, hierarchical) | 59,854.90 um^2 |
-| `proteus_host` (hierarchical) | 12,707.07 um^2 |
-| `proteus_assist` wrapper + CSR (own cells; the assists are counted above) | 31,715.86 um^2 |
-| `tt_um_proteus` top glue (own cells) | 37,106.56 um^2 |
-
-The last five lines add up to the hierarchical total: 396,631.73 (engines) +
-59,854.90 (assists) + 31,715.86 + 12,707.07 + 37,106.56 = 538,016.13 um^2.
-
-The assist set costs less than the engine it replaced (59,854.90 um^2 for all
-seven assist blocks against 132,741.24 um^2 for one engine), and the flat result
-sits inside the 60 % placement budget with **22,216.40 um^2 spare** (4.1 % of
-the budget); the hierarchical sum is inside by 3,434.07 um^2. That is the first
-build in this project inside the budget on both counts. It is **12,350.58 um^2
-(+1.37 pp) above** the study prediction of 506,883.22 um^2, not below it, and
-that overshoot is not fully attributed (`docs/verification.md` §2.9). Timing at
-50 MHz has a post-global-route number
-(**+11.0205 ns setup / +0.2878 ns hold** at 20 ns, `results/flow_report.md`), but
-routing is not signed off: six local LibreLane attempts stalled in OpenROAD
-detailed routing with an identical silent signature at both placement targets
-tried (65 % on v1, 60 % on this tree - the `PL_TARGET_DENSITY_PCT` knob, distinct
-from the 57.54 % measured cell area), while the 1x1 smoke flow completes. That is
-an aarch64 runtime block, not a density verdict; the authoritative gate is
-`.github/workflows/gds.yaml` on x86_64.
-
----
-
-## Repository layout
-
-```
-info.yaml               Tiny Tapeout project metadata (tiles 6x4, 50 MHz, 12 sources)
-src/                    RTL: defs header, engine, host SPI, top, 5 assists (12 files)
-docs/architecture.md    implementation contract (behaviour, register map, merges)
-docs/isa.md             ISA prose mirror of tools/isa.py (75 opcodes)
-docs/info.md            Tiny Tapeout project page
-docs/verification.md    methodology, commands, current evidence, gaps
-docs/demo.md            three-minute demo script + figure provenance
-docs/hybrid-architecture.md  the measured 3-engine + assists study and its risks
-docs/flow.md            LibreLane / PDK commands and measured runtimes
-docs/figures/           SVG figures (architecture, fabric, pacer, traces, ladder)
-docs/pinout.md          physical pins, bank map, host reservation, assist ownership
-docs/programming.md     programmer guide: frames, registers, assist CSR, assembler
-docs/ai-development.md  auditable account of the autonomous build
-research/               protocol timing, IHP constraints, prior art, ISA survey
-tools/isa.py            opcode + encoding source of truth
-tools/asm.py            assembler (labels, equates, side-set, assist operands)
-tools/model.py          cycle-accurate golden model (executable spec)
-tools/diffgen.py        differential corpus generator
-tools/mutate.py         99-mutation catalogue and runner
-tools/selfcheck.py      toolchain self-check (opcodes, CRC vectors, FIFO/nf)
-firmware/               6 assembly programs (UART TX/RX, SPI, I2C, Ethernet, blink)
-demos/                  autobaud, WS2812, barrier-synced UART-SPI bridge + runner
-tb/                     10 Icarus benches: 6 assist units, csr, top smoke, engine, top e2e
-test/                   official Tiny Tapeout cocotb gate (tb.v, Makefile, test.py)
-sim/                    cocotb harness: map, protocols, differential
-v2/formal/              SBY engine harness for the v2 port list
-v2/results/             v2 evidence: verify, diff+formal, mutation, synthesis, firmware
-results/                measured evidence; flow_report.md, area, v1 records
-scripts/                synth.sh, synth_full.sh, flow.sh, fetch_pdk.sh
-legacy/v1/              the previous four-engine build (frozen, do not modify)
-fpga/                   DE2 project for the v1 top only (not ported to v2)
-```
-
----
-
-## Reproduction
-
-```sh
-git clone <repo> && cd proteus
 python3 -m venv .venv && .venv/bin/pip install pytest cocotb pyyaml
 
-# 1. toolchain + logic
-python3 tools/selfcheck.py
+python3 tools/selfcheck.py                  # toolchain and opcode round-trip
+python -m proteus status                    # every gate, from the recorded evidence
+python -m proteus spec --json | head        # machine-readable ISA and register spec
+python -m pytest tests -q                   # 91 tests for the toolkit itself
+PATH=$PWD/.venv/bin:$PATH make -C test      # official Tiny Tapeout gate
+make -C sim                                 # protocols on the real RTL
+make -C sim diff                            # RTL vs model, every cycle
+bash tb/run.sh                              # directed benches
+python3 demos/run_demos.py                  # model-level demos
+./formal/run.sh                             # engine formal, E0..E11
+python3 tools/mutate.py --all               # mutation score
 
-# 2. official submission gate (pads only)
-PATH=$PWD/.venv/bin:$PATH make -C test
-
-# 3. protocols on the RTL, then DUT vs model every cycle
-cd sim && make && make diff && cd ..
-
-# 4. directed RTL benches + model-level demos
-bash tb/run.sh
-python3 demos/run_demos.py
-
-# 5. engine formal
-./v2/formal/run.sh
-
-# 6. area (needs the IHP liberty)
-make pdk-lite && scripts/synth_full.sh
-
-# 7. GDS + slow-corner timing: push and let .github/workflows/gds.yaml run
+scripts/fetch_pdk.sh --liberty-only && scripts/synth_full.sh   # area
+scripts/fetch_pdk.sh && scripts/flow.sh                        # LibreLane
 ```
 
-Every number above is either quoted from the cited file or was produced by the
-command in the same row. Where a number does not exist, the command that
-produces it is given instead.
+Every count in the table above has its command and its output in
+[docs/verification.md](docs/verification.md) §2, with the artifact behind it.
+The hardware flow and its current state are in
+[docs/showcase/flow.md](docs/showcase/flow.md).
 
----
+## Layout
 
-## v1 (previous build)
+| Path | What |
+|---|---|
+| `src/` | 12 RTL files: definitions, engine, host SPI, top, five assists |
+| `tools/` | ISA table, assembler, cycle model, differential generator, mutation catalogue |
+| `proteus/` | `python -m proteus`: ISA, assembler, model runner, spec, benchmark generator, evidence status |
+| `tests/` | pytest suite for the toolkit (91 tests) |
+| `firmware/` | UART TX/RX, SPI, I2C, Ethernet MII, pin blink |
+| `sim/` | cocotb protocol tests and the RTL-vs-model differential |
+| `test/` | the official Tiny Tapeout cocotb gate, pads only |
+| `tb/` | 10 directed Icarus benches |
+| `formal/` | SymbiYosys engine harness, E0-E11 |
+| `docs/` | architecture, ISA, pinout, programming, verification, flow |
+| `docs/assets/` | the three figures used in this README |
+| `docs/showcase/` | verification, agent workflow and physical-flow investigations |
+| `v2/results/` | the v2 evidence snapshot: protocol, differential, formal, mutation |
+| `results/` | measured logs: synthesis, area, flow, formal |
+| `legacy/v1/` | the previous four-engine build, frozen and unmodified |
+| `scripts/` | PDK fetch, synthesis, LibreLane hardening |
 
-The previous four-engine design is preserved unchanged at `legacy/v1/`
-(`legacy/v1/src`, `legacy/v1/README.md`, `legacy/v1/SUBMISSION.md`) and was the
-first full submission: 4 engines x 32 x 24 program RAM, 72 opcodes,
-`VERSION 0x01`, **581,138.67 um2 hierarchical / 558,240.45 um2 flat, 42,049
-cells = 64.4 % of row area** (`results/area_full.md`), 107.3 % of the 60 %
-placement budget. It owns the evidence that v2 does not have: the top-level
-formal suite T1-T7 with X1 (`results/formal_summary.txt`), the DE2 FPGA demos
-(36 checks, 0 errors, v1 tree), the v1 differential (`results/diff_report.md`),
-the v1 protocol run (`results/protocol_rtl.md`) and the v1 mutation score
-(`results/mutation.md`). It did not route at 64.4 % on this host
-(`results/flow_report.md`). v2 replaces it because the fourth engine cost more
-than the entire assist set and Ethernet needed the assists, not another lane.
+Design detail: [docs/architecture.md](docs/architecture.md) for the register
+map and merge rules, [docs/isa.md](docs/isa.md) for the 75-opcode encoding,
+[docs/programming.md](docs/programming.md) for the host frames and assist CSR,
+[docs/pinout.md](docs/pinout.md) for the pad map and ownership.
 
----
+## Target and hardware
 
-Apache-2.0 (`LICENSE`).
+Tiny Tapeout, IHP SG13CMOS5L, 8x4 tiles (32 tiles). The clock target is 50 MHz.
+There are 24 user pads: `ui_in[7:0]`, `uo_out[7:0]` and `uio[7:0]` with
+per-pin output-enable and open-drain control. I/O is 3.3 V only, with no 5 V
+tolerance, no internal pull-ups and 30 mA pad drive, so open-drain use needs
+external pull-ups. The host is any SPI master; an MCU or an FPGA is enough.
+
+There is no board and no silicon. The 8x4 GDS exists and passes DRC, LVS and
+antenna, but timing sign-off is awaiting a rerun with the resizer margins
+restored, and gate-level simulation has not been run. The 8x4 tile choice costs
+die area; 6x4 would have been cheaper and does not route. That is the physical
+state.
+
+## Licence
+
+Apache-2.0 (`LICENSE`). Contributions are under the same licence; see
+[CONTRIBUTING.md](CONTRIBUTING.md).

@@ -1,0 +1,121 @@
+{
+  "schema": "proteus.evidence/1",
+  "design": {
+    "name": "PROTEUS",
+    "version": 2,
+    "branch": "tiles-8x4"
+  },
+  "entries": [
+    {
+      "id": "test",
+      "title": "test",
+      "status": "PASS",
+      "summary": "TT cocotb harness: TESTS=1 PASS=1 FAIL=0",
+      "facts": {
+        "command": "PATH=$PWD/.venv/bin:$PATH make -C test",
+        "failures": 0,
+        "tests": 1
+      },
+      "evidence": [
+        "test/results.xml",
+        "results/final_evidence.md"
+      ]
+    },
+    {
+      "id": "sim",
+      "title": "sim",
+      "status": "PASS",
+      "summary": "cocotb protocol suite: 6 tests, 236 checks, 0 failures",
+      "facts": {
+        "checks": 236,
+        "failures": 0,
+        "tests": 6
+      },
+      "evidence": [
+        "sim/results_protocols.xml",
+        "results/protocol_rtl.md"
+      ]
+    },
+    {
+      "id": "diff",
+      "title": "diff",
+      "status": "PASS",
+      "summary": "differential model-vs-RTL: 209 programs, 16,122 cycles, 0 mismatches",
+      "facts": {
+        "cycles": 16122,
+        "mismatches": 0,
+        "programs": 209
+      },
+      "evidence": [
+        "sim/results_diff.xml",
+        "results/diff_report.md"
+      ]
+    },
+    {
+      "id": "formal",
+      "title": "formal",
+      "status": "PASS",
+      "summary": "engine acceptance E1-E8,E10,E11 PASS; X-freedom PASS; T4 SPEC and T7 OPEN",
+      "facts": {
+        "acceptance": ["E1", "E2", "E3", "E4", "E4B", "E5", "E6", "E7", "E8", "E10", "E11"],
+        "open": ["T4", "T7"],
+        "xcheck": "PASS"
+      },
+      "evidence": [
+        "results/formal_summary.txt",
+        "results/final_evidence.md"
+      ]
+    },
+    {
+      "id": "mutation",
+      "title": "mutation",
+      "status": "PASS",
+      "summary": "mutation testing: 95/99 killed = 96.0% (4 equivalent survivors)",
+      "facts": {
+        "killed": 95,
+        "kill_rate": 0.96,
+        "mutants": 99,
+        "survived": 4
+      },
+      "evidence": [
+        "results/mutation_root.md",
+        "results/final_evidence.md"
+      ]
+    },
+    {
+      "id": "area",
+      "title": "area",
+      "status": "PASS",
+      "summary": "Yosys flat 519,233.80 um2 / 36,343 cells = 57.54% of rows (60% budget)",
+      "facts": {
+        "budget_60_um2": 541450.2,
+        "cells": 36343,
+        "flat_um2": 519233.8,
+        "librelane_instances": 33692,
+        "librelane_um2": 485436.67,
+        "row_utilisation_pct": 57.54
+      },
+      "evidence": [
+        "results/synth_v2_root.txt",
+        "results/final_evidence.md"
+      ]
+    },
+    {
+      "id": "gds",
+      "title": "GDS",
+      "status": "FAIL",
+      "summary": "GitHub gds action: DRC/LVS/antenna PASS, timing checkers FAIL on the last run; no local routed GDS",
+      "facts": {
+        "antenna": "PASS",
+        "drc": "PASS",
+        "local_routed_gds": false,
+        "lvs": "PASS",
+        "timing_checkers": "FAIL"
+      },
+      "evidence": [
+        ".github/workflows/gds.yaml",
+        "results/flow_report.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" width="960" height="560" class="fig" role="img" aria-labelledby="arch-title arch-desc">
+  <title id="arch-title">PROTEUS architecture: host SPI, register file, three engines, five assists, 24 pads</title>
+  <desc id="arch-desc">The host writes the register file over SPI. Three engines run programs from 32 by 24 program RAM and reach five protocol-agnostic assists through LDAS, STAS and ASST at CSR 0x0600 plus 0x10 times the assist id. The merged pin fabric drives and senses 24 pads, with ownership priority host over assist over engine.</desc>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="mark" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+
+  <style>
+    .fig { --fg: #1b1f24; --muted: #5b6875; --border: #c6d0da; --surface: #f7f9fc; --accent: #1f5f8b; --success: #2f7d4f; --warning: #a16a12; --error: #b03a2e; }
+    .fig text { fill: var(--fg); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 15px; }
+    .fig .s13 { font-size: 13px; }
+    .fig .s14 { font-size: 14px; }
+    .fig .s15 { font-size: 15px; }
+    .fig .s16 { font-size: 16px; }
+    .fig .s22 { font-size: 22px; }
+    .fig .b { font-weight: 600; }
+    .fig .muted { fill: var(--muted); }
+    .fig .accent { fill: var(--accent); }
+    .fig .success { fill: var(--success); }
+    .fig .box { fill: var(--surface); stroke: var(--border); stroke-width: 1.4; }
+    .fig .group { fill: none; stroke: var(--border); stroke-width: 1.4; stroke-dasharray: 6 5; }
+    .fig .line { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+    .fig .accent-line { stroke: var(--accent); stroke-width: 1.6; fill: none; }
+    .fig .mark { fill: var(--muted); }
+  </style>
+
+  <text x="24" y="36" class="s22 b">PROTEUS: a programmable protocol engine</text>
+  <text x="24" y="60" class="s14 muted">Three 24-bit engines and five protocol-agnostic assists on 24 pads. The protocol is program RAM, not gates.</text>
+
+  <!-- host SPI pads -->
+  <rect x="20" y="88" width="210" height="100" rx="6" class="box"/>
+  <text x="34" y="112" class="s16 b">Host SPI</text>
+  <text x="34" y="136" class="s13">SCK, CS_N, MOSI in</text>
+  <text x="34" y="156" class="s13">MISO out</text>
+  <text x="34" y="176" class="s13 muted">mode 0, SCK ≤ clk/8</text>
+
+  <line x1="125" y1="188" x2="125" y2="206" class="line" marker-end="url(#arrow)"/>
+
+  <!-- host block -->
+  <rect x="20" y="208" width="210" height="126" rx="6" class="box"/>
+  <text x="34" y="234" class="s16 b">proteus_host</text>
+  <text x="34" y="258" class="s13">14-state command FSM</text>
+  <text x="34" y="278" class="s13">16-bit address pointer</text>
+  <text x="34" y="298" class="s13">10 commands, 00..09</text>
+  <text x="34" y="318" class="s13 muted">PING echoes 0x50</text>
+
+  <!-- register bus arrow -->
+  <line x1="230" y1="250" x2="316" y2="250" class="line" marker-end="url(#arrow)"/>
+  <text x="273" y="240" class="s13 accent" text-anchor="middle">register bus</text>
+  <text x="273" y="272" class="s13 muted" text-anchor="middle">reg_we</text>
+  <text x="273" y="288" class="s13 muted" text-anchor="middle">addr/wdata</text>
+
+  <!-- fabric container -->
+  <rect x="316" y="88" width="328" height="376" rx="8" class="group"/>
+  <text x="330" y="108" class="s13 muted">fabric</text>
+
+  <!-- engines -->
+  <rect x="332" y="120" width="296" height="64" rx="5" class="box"/>
+  <text x="346" y="142" class="s15 b">engine 0</text>
+  <text x="346" y="162" class="s13">32 x 24 program RAM · 8-bit ALU</text>
+  <text x="346" y="178" class="s13 muted">pacer · FIFOs · side-set · IRQ</text>
+
+  <rect x="332" y="192" width="296" height="64" rx="5" class="box"/>
+  <text x="346" y="214" class="s15 b">engine 1</text>
+  <text x="346" y="234" class="s13">32 x 24 program RAM · 8-bit ALU</text>
+  <text x="346" y="250" class="s13 muted">pacer · FIFOs · side-set · IRQ</text>
+
+  <rect x="332" y="264" width="296" height="64" rx="5" class="box"/>
+  <text x="346" y="286" class="s15 b">engine 2</text>
+  <text x="346" y="306" class="s13">32 x 24 program RAM · 8-bit ALU</text>
+  <text x="346" y="322" class="s13 muted">pacer · FIFOs · side-set · IRQ</text>
+
+  <!-- opcode arrow to assists -->
+  <line x1="480" y1="328" x2="480" y2="354" class="accent-line" marker-end="url(#arrow)"/>
+  <text x="468" y="338" class="s13 accent" text-anchor="end">LDAS · STAS · ASST</text>
+  <text x="468" y="352" class="s13 accent" text-anchor="end">0x4E / 0x4F / 0x50</text>
+
+  <!-- assist fabric -->
+  <rect x="332" y="356" width="296" height="100" rx="5" class="box"/>
+  <text x="346" y="378" class="s16 b">assist fabric: 5 blocks</text>
+  <text x="346" y="400" class="s13">CRC-32 · FIFO 16x8 · shift32</text>
+  <text x="346" y="418" class="s13">NRZI enc/dec · Manchester enc/dec</text>
+  <text x="346" y="438" class="s13 muted">CSR 0x0600 + 0x10*id · PINCFG</text>
+
+  <!-- host CSR arrow into the assist window -->
+  <path d="M 125 334 L 125 406 L 330 406" class="line" marker-end="url(#arrow)"/>
+  <text x="230" y="398" class="s13 accent" text-anchor="middle">CSR 0x0600 + 0x10*id</text>
+
+  <!-- pin bus -->
+  <line x1="646" y1="276" x2="730" y2="276" class="line" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <text x="688" y="266" class="s13 accent" text-anchor="middle">pin bus</text>
+  <text x="684" y="294" class="s13 muted" text-anchor="middle">uo/uio/oe/od</text>
+
+  <!-- pads -->
+  <rect x="730" y="88" width="210" height="376" rx="8" class="group"/>
+  <text x="744" y="112" class="s16 b">24 pads</text>
+  <text x="744" y="132" class="s13 muted">3.3 V, no 5 V tolerance</text>
+
+  <rect x="742" y="148" width="186" height="72" rx="5" class="box"/>
+  <text x="754" y="170" class="s14 b">ui_in[7:0]</text>
+  <text x="754" y="190" class="s13 muted">8 inputs</text>
+  <text x="754" y="208" class="s13">host: SCK CS_N MOSI</text>
+
+  <rect x="742" y="232" width="186" height="72" rx="5" class="box"/>
+  <text x="754" y="254" class="s14 b">uo_out[7:0]</text>
+  <text x="754" y="274" class="s13 muted">8 outputs</text>
+  <text x="754" y="292" class="s13">host: MISO, IRQ</text>
+
+  <rect x="742" y="316" width="186" height="72" rx="5" class="box"/>
+  <text x="754" y="338" class="s14 b">uio[7:0]</text>
+  <text x="754" y="358" class="s13 muted">8 inout</text>
+  <text x="754" y="376" class="s13">OE + open drain per pin</text>
+
+  <text x="744" y="418" class="s13 muted">30 mA drive</text>
+  <text x="744" y="438" class="s13 muted">open drain needs</text>
+  <text x="744" y="454" class="s13 muted">external pull-ups</text>
+
+  <!-- ownership band -->
+  <rect x="20" y="484" width="920" height="60" rx="6" class="box"/>
+  <text x="36" y="510" class="s14">Pin ownership, highest first: host register write &gt; assist PINCFG.en &gt; engine 2 &gt; engine 1 &gt; engine 0.</text>
+  <text x="36" y="532" class="s13 muted">All five PINCFG registers reset to 0; command 0x09 (HOST_DISABLE) returns ui[0:2] and uo[0:1] to the fabric.</text>
+</svg>
